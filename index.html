@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IX Sindh Study Hub</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">IX <span>Sindh Study Hub</span></div>
+    <button id="logout" class="ghost hidden">Logout</button>
+  </header>
+
+  <section id="authView" class="auth">
+    <div class="card">
+      <h1>📚 IX Sindh Study Hub</h1>
+      <p>Class IX study platform</p>
+      <div class="tabs">
+        <button class="tab active" data-mode="login">Login</button>
+        <button class="tab" data-mode="register">Register</button>
+      </div>
+      <form id="authForm">
+        <input id="name" placeholder="Full name" class="hidden">
+        <input id="email" type="email" placeholder="Email" required>
+        <input id="password" type="password" placeholder="Password" required>
+        <button class="primary" type="submit" id="authSubmit">Login</button>
+      </form>
+      <div id="authMsg" class="msg"></div>
+    </div>
+  </section>
+
+  <main id="mainView" class="hidden">
+    <section class="hero card">
+      <div>
+        <small>Assalam-o-Alaikum 👋</small>
+        <h1 id="welcome">Student</h1>
+        <p>Class IX • Sindh Board</p>
+      </div>
+      <div class="scoreBox"><b id="bestScore">0%</b><small>Best Quiz</small></div>
+    </section>
+
+    <div class="grid">
+      <section>
+        <div class="card">
+          <h2>📚 Subjects</h2>
+          <div id="subjects" class="subjects"></div>
+        </div>
+        <div class="card">
+          <h2>📝 Notes</h2>
+          <div id="notes"></div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="card">
+          <h2>❓ Quiz</h2>
+          <p id="quizInfo">Loading questions...</p>
+          <button class="primary" id="startQuiz">Start Quiz</button>
+          <div id="quiz"></div>
+        </div>
+
+        <div class="card">
+          <h2>⏱️ Study Timer</h2>
+          <div class="timer" id="timer">25:00</div>
+          <button class="primary" onclick="startTimer()">Start</button>
+          <button class="ghost" onclick="pauseTimer()">Pause</button>
+          <button class="ghost" onclick="resetTimer()">Reset</button>
+        </div>
+
+        <div id="adminCard" class="card hidden">
+          <h2>⚙️ Admin</h2>
+          <p>Add content from the admin tools below.</p>
+          <button class="ghost" id="showAdmin">Open Admin Form</button>
+          <div id="adminForm" class="hidden">
+            <h3>Add Note</h3>
+            <select id="adminSubject"></select>
+            <input id="noteTitle" placeholder="Note title">
+            <textarea id="noteContent" placeholder="Note content"></textarea>
+            <button class="primary" id="addNote">Save Note</button>
+            <hr>
+            <h3>Add MCQ</h3>
+            <input id="qText" placeholder="Question">
+            <input id="oa" placeholder="Option A">
+            <input id="ob" placeholder="Option B">
+            <input id="oc" placeholder="Option C">
+            <input id="od" placeholder="Option D">
+            <select id="qAnswer">
+              <option value="0">Correct: A</option>
+              <option value="1">Correct: B</option>
+              <option value="2">Correct: C</option>
+              <option value="3">Correct: D</option>
+            </select>
+            <button class="primary" id="addQuestion">Save Question</button>
+            <div id="adminMsg" class="msg"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>
