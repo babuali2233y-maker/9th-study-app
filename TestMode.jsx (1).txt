@@ -1,0 +1,126 @@
+import React, { useState } from 'react';
+
+function TestMode({ subject, chapter, onComplete, onBack }) {
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [showResults, setShowResults] = useState(false);
+
+  const mcqs = chapter.mcqs || [];
+
+  const handleSelectOption = (optionIndex) => {
+    setAnswers({
+      ...answers,
+      [currentQ]: optionIndex
+    });
+  };
+
+  const handleNext = () => {
+    if (currentQ < mcqs.length - 1) {
+      setCurrentQ(currentQ + 1);
+    } else {
+      calculateResults();
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQ > 0) {
+      setCurrentQ(currentQ - 1);
+    }
+  };
+
+  const calculateResults = () => {
+    let correct = 0;
+    mcqs.forEach((mcq, idx) => {
+      if (answers[idx] === mcq.correctAnswer) {
+        correct++;
+      }
+    });
+
+    const percentage = Math.round((correct / mcqs.length) * 100);
+    
+    onComplete({
+      score: correct,
+      total: mcqs.length,
+      percentage,
+      answers,
+      mcqs
+    });
+  };
+
+  if (mcqs.length === 0) {
+    return (
+      <div className="test-mode">
+        <p>No MCQs available for this chapter</p>
+        <button className="btn" onClick={onBack}>Back</button>
+      </div>
+    );
+  }
+
+  const currentMcq = mcqs[currentQ];
+  const selectedAnswer = answers[currentQ];
+
+  return (
+    <div className="test-mode">
+      <div className="test-header">
+        <button className="back-btn" onClick={onBack}>← Exit Test</button>
+        <h2>{chapter.title}</h2>
+        <div className="progress">
+          Question {currentQ + 1} of {mcqs.length}
+        </div>
+      </div>
+
+      <div className="progress-bar">
+        <div 
+          className="progress-fill" 
+          style={{ width: `${((currentQ + 1) / mcqs.length) * 100}%` }}
+        ></div>
+      </div>
+
+      <div className="test-content">
+        <div className="question-section">
+          <h3>{currentMcq.question}</h3>
+        </div>
+
+        <div className="options-section">
+          {currentMcq.options.map((option, idx) => (
+            <button
+              key={idx}
+              className={`option-btn ${selectedAnswer === idx ? 'selected' : ''}`}
+              onClick={() => handleSelectOption(idx)}
+            >
+              <span className="option-letter">{String.fromCharCode(65 + idx)}.</span>
+              <span className="option-text">{option}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="test-navigation">
+          <button 
+            className="btn"
+            onClick={handlePrevious}
+            disabled={currentQ === 0}
+          >
+            ← Previous
+          </button>
+
+          <div className="question-counter">
+            {currentQ + 1} / {mcqs.length}
+          </div>
+
+          <button 
+            className="btn btn-primary"
+            onClick={handleNext}
+          >
+            {currentQ === mcqs.length - 1 ? 'Submit' : 'Next →'}
+          </button>
+        </div>
+
+        <div className="unanswered-warning">
+          {selectedAnswer === undefined && '⚠️ Please select an answer before proceeding'}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default TestMode;

@@ -1,0 +1,25 @@
+import React from 'react';
+import { studyData } from '../data/studyData';
+
+function SubjectList({ onSelectSubject }) {
+  return (
+    <div className="subject-list-container">
+      <h2>Select Subject</h2>
+      <div className="subject-grid">
+        {studyData.subjects.map((subject) => (
+          <div 
+            key={subject.id}
+            className="subject-card"
+            onClick={() => onSelectSubject(subject)}
+          >
+            <div className="subject-icon">{subject.icon}</div>
+            <h3>{subject.name}</h3>
+            <p>Click to start</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default SubjectList;

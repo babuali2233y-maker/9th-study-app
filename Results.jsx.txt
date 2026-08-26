@@ -1,0 +1,111 @@
+import React, { useState } from 'react';
+
+function Results({ results, chapter, onBack }) {
+  const [showDetails, setShowDetails] = useState(false);
+
+  const getGrade = (percentage) => {
+    if (percentage >= 90) return 'A+';
+    if (percentage >= 80) return 'A';
+    if (percentage >= 70) return 'B';
+    if (percentage >= 60) return 'C';
+    if (percentage >= 50) return 'D';
+    return 'F';
+  };
+
+  const getResultColor = (percentage) => {
+    if (percentage >= 80) return '#27ae60'; // Green
+    if (percentage >= 60) return '#f39c12'; // Orange
+    return '#e74c3c'; // Red
+  };
+
+  const grade = getGrade(results.percentage);
+  const color = getResultColor(results.percentage);
+
+  return (
+    <div className="results-container">
+      <div className="results-header">
+        <h2>Test Results</h2>
+        <p>{chapter.title}</p>
+      </div>
+
+      <div className="results-score-card" style={{ borderLeftColor: color }}>
+        <div className="score-display">
+          <div className="grade" style={{ color }}>{grade}</div>
+          <div className="percentage">{results.percentage}%</div>
+        </div>
+        <div className="score-details">
+          <p>Score: <strong>{results.score}/{results.total}</strong></p>
+          <p>Correct Answers: {results.score}</p>
+          <p>Wrong Answers: {results.total - results.score}</p>
+        </div>
+      </div>
+
+      <div className="results-feedback">
+        {results.percentage >= 80 && (
+          <p className="feedback-positive">🎉 Excellent performance! Keep it up!</p>
+        )}
+        {results.percentage >= 60 && results.percentage < 80 && (
+          <p className="feedback-medium">👍 Good effort! Try to improve more.</p>
+        )}
+        {results.percentage < 60 && (
+          <p className="feedback-negative">📚 Keep studying and practice more!</p>
+        )}
+      </div>
+
+      <button 
+        className="btn btn-details"
+        onClick={() => setShowDetails(!showDetails)}
+      >
+        {showDetails ? 'Hide Details' : 'View Detailed Answers'}
+      </button>
+
+      {showDetails && (
+        <div className="detailed-answers">
+          <h3>Question Review</h3>
+          {results.mcqs.map((mcq, idx) => {
+            const userAnswer = results.answers[idx];
+            const isCorrect = userAnswer === mcq.correctAnswer;
+            
+            return (
+              <div key={idx} className={`answer-review ${isCorrect ? 'correct' : 'incorrect'}`}>
+                <div className="review-header">
+                  <span className={`status ${isCorrect ? 'correct' : 'incorrect'}`}>
+                    {isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                  </span>
+                  <span className="question-num">Q{idx + 1}</span>
+                </div>
+                
+                <p className="review-question"><strong>{mcq.question}</strong></p>
+                
+                <div className="review-options">
+                  {mcq.options.map((option, optIdx) => {
+                    const isUserAnswer = userAnswer === optIdx;
+                    const isCorrectAnswer = optIdx === mcq.correctAnswer;
+                    
+                    return (
+                      <div 
+                        key={optIdx} 
+                        className={`review-option ${isCorrectAnswer ? 'correct-answer' : ''} ${isUserAnswer && !isCorrect ? 'wrong-answer' : ''}`}
+                      >
+                        <span className="option-letter">{String.fromCharCode(65 + optIdx)}.</span>
+                        <span>{option}</span>
+                        {isCorrectAnswer && <span className="badge">✓ Correct</span>}
+                        {isUserAnswer && !isCorrect && <span className="badge">✗ Your Answer</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="results-actions">
+        <button className="btn" onClick={onBack}>Back to Chapters</button>
+      </div>
+    </div>
+  );
+}
+
+export default Results;
