@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Classroom App - G•H & J•P</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+        }
+
+        /* ===== NAVBAR ===== */
+        .navbar {
+            background: linear-gradient(135deg, #2b6cb0, #2c5282);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .navbar .brand {
+            font-size: 1.6rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar .brand i {
+            font-size: 1.8rem;
+        }
+
+        .navbar .owners {
+            font-size: 0.95rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .navbar .owners span {
+            font-weight: 600;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            background: rgba(255,255,255,0.25);
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ===== SECTIONS ===== */
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 2rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .card h2 i {
+            color: #2b6cb0;
+        }
+
+        /* ===== ADMIN FORM ===== */
+        .admin-form input,
+        .admin-form textarea,
+        .admin-form select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .admin-form input:focus,
+        .admin-form textarea:focus {
+            outline: none;
+            border-color: #2b6cb0;
+            box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
+        }
+
+        .admin-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #1a4f7a;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-success {
+            background: #38a169;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #2b6cb0;
+            color: #2b6cb0;
+        }
+
+        .btn-outline:hover {
+            background: #2b6cb0;
+            color: white;
+        }
+
+        /* ===== STUDY LIST ===== */
+        .study-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .study-item {
+            background: white;
+            border-radius: 14px;
+            padding: 1.5rem;
+            border-left: 5px solid #2b6cb0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .study-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .study-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .study-item .meta {
+            font-size: 0.85rem;
+            color: #718096;
+            margin-bottom: 0.6rem;
+        }
+
+        .study-item .desc {
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .study-item .actions {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .study-item .actions .btn {
+            padding: 0.3rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #ebf8ff;
+            color: #2b6cb0;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.4rem;
+        }
+
+        /* ===== AI CHAT ===== */
+        .chat-box {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            background: #f7fafc;
+            margin-bottom: 1rem;
+        }
+
+        .chat-msg {
+            padding: 0.7rem 1rem;
+            border-radius: 14px;
+            margin-bottom: 0.6rem;
+            max-width: 80%;
+        }
+
+        .chat-msg.user {
+            background: #2b6cb0;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-msg.ai {
+            background: white;
+            border: 1px solid #e2e8f0;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-input-group {
+            display: flex;
+            gap: 0.6rem;
+        }
+
+        .chat-input-group input {
+            flex: 1;
+            padding: 0.7rem 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+
+        .chat-input-group input:focus {
+            outline: none;
+            border-color: #2b6cb0;
+        }
+
+        .chat-input-group .btn {
+            border-radius: 30px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+
+            .navbar .brand {
+                font-size: 1.3rem;
+            }
+
+            .nav-links {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .study-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-msg {
+                max-width: 95%;
+            }
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #718096;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #718096;
+            font-size: 0.9rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-note strong {
+            color: #2b6cb0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <div class="brand">
+            <i class="fas fa-chalkboard-teacher"></i>
+            ClassHub
+        </div>
+        <div class="owners">
+            <i class="fas fa-user-shield"></i>
+            Admins: <span>G•H</span> &amp; <span>J•P</span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="#" data-section="admin"><i class="fas fa-user-cog"></i> Admin</a>
+            <a href="#" data-section="ai"><i class="fas fa-robot"></i> AI Assistant</a>
+        </div>
+    </nav>
+
+    <!-- ===== CONTAINER ===== -->
+    <div class="container">
+
+        <!-- ===== DASHBOARD ===== -->
+        <div id="dashboard" class="section active">
+            <div class="card">
+                <h2><i class="fas fa-book-open"></i> Study Materials</h2>
+                <div id="studyList" class="study-grid">
+                    <!-- Dynamically rendered -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ADMIN PANEL ===== -->
+        <div id="admin" class="section">
+            <div class="card">
+                <h2><i class="fas fa-plus-circle"></i> Add New Study</h2>
+                <form id="addStudyForm" class="admin-form">
+                    <input type="text" id="studyTitle" placeholder="Study title" required />
+                    <textarea id="studyDesc" placeholder="Description / content" required></textarea>
+                    <select id="studyCategory">
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Science">Science</option>
+                        <option value="English">English</option>
+                        <option value="History">History</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button type="submit" class="btn"><i class="fas fa-save"></i> Add Study</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2><i class="fas fa-list-ul"></i> Manage Studies</h2>
+                <div id="adminStudyList">
+                    <!-- Rendered same as dashboard but with delete buttons -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== AI ASSISTANT ===== -->
+        <div id="ai" class="section">
+            <div class="card">
+                <h2><i class="fas fa-robot"></i> AI Study Assistant</h2>
+                <p style="color:#4a5568; margin-bottom:1rem;">
+                    Ask anything about your studies — get instant help!
+                </p>
+                <div id="chatMessages" class="chat-box">
+                    <div class="chat-msg ai">
+                        <i class="fas fa-robot" style="margin-right:6px;"></i>
+                        Hello! I'm your AI study assistant. Ask me anything.
+                    </div>
+                </div>
+                <div class="chat-input-group">
+                    <input type="text" id="chatInput" placeholder="Type your question..." />
+                    <button id="sendChatBtn" class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <i class="fas fa-graduation-cap"></i> ClassHub &bull; Built with ❤️ by <strong>G•H</strong> &amp; <strong>J•P</strong>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // DATA STORE (localStorage for persistence)
+        // ============================================================
+        let studies = [];
+
+        // Load from localStorage or use defaults
+        function loadData() {
+            const stored = localStorage.getItem('classhub_studies');
+            if (stored) {
+                studies = JSON.parse(stored);
+            } else {
+                // Seed with sample data
+                studies = [
+                    {
+                        id: Date.now() + 1,
+                        title: 'Introduction to Algebra',
+                        description: 'Basics of variables, equations, and linear functions.',
+                        category: 'Mathematics',
+                        createdAt: new Date().toLocaleDateString()
+                    },
+                    {
+                        id: Date.now() + 2,
+                        title: 'Photosynthesis',
+                        description: 'How plants convert sunlight into energy.',
+                        category: 'Science',
+                        createdAt: new Date().toLocaleDateString()
+                    }
+                ];
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('classhub_studies', JSON.stringify(studies));
+        }
+
+        // ============================================================
+        // RENDER FUNCTIONS
+        // ============================================================
+        function renderStudies() {
+            const container = document.getElementById('studyList');
+            if (studies.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column:1/-1;">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No studies added yet. Go to Admin panel to add!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = studies.map(s => `
+                <div class="study-item">
+                    <span class="badge">${s.category || 'General'}</span>
+                    <h3>${escapeHtml(s.title)}</h3>
+                    <div class="meta"><i class="far fa-calendar-alt"></i> ${s.createdAt || 'Just now'}</div>
+                    <div class="desc">${escapeHtml(s.description)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderAdminList() {
+            const container = document.getElementById('adminStudyList');
+            if (studies.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-plus-circle"></i>
+                        <p>No studies yet. Add one using the form above!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = studies.map((s, index) => `
+                <div class="study-item" style="margin-bottom:1rem;">
+                    <span class="badge">${s.category || 'General'}</span>
+                    <h3>${escapeHtml(s.title)}</h3>
+                    <div class="meta"><i class="far fa-calendar-alt"></i> ${s.createdAt || 'Just now'}</div>
+                    <div class="desc">${escapeHtml(s.description)}</div>
+                    <div class="actions">
+                        <button class="btn btn-danger" onclick="deleteStudy(${index})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderAll() {
+            renderStudies();
+            renderAdminList();
+        }
+
+        // ============================================================
+        // CRUD OPERATIONS
+        // ============================================================
+        function addStudy(title, description, category) {
+            const newStudy = {
+                id: Date.now(),
+                title: title.trim(),
+                description: description.trim(),
+                category: category || 'Other',
+                createdAt: new Date().toLocaleDateString()
+            };
+            studies.unshift(newStudy);
+            saveData();
+            renderAll();
+        }
+
+        function deleteStudy(index) {
+            if (confirm('Delete this study?')) {
+                studies.splice(index, 1);
+                saveData();
+                renderAll();
+            }
+        }
+
+        // ============================================================
+        // AI CHAT (Simulated)
+        // ============================================================
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chatMessages');
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'chat-msg user';
+            userDiv.innerHTML = `<i class="fas fa-user" style="margin-right:6px;"></i> ${escapeHtml(msg)}`;
+            chatBox.appendChild(userDiv);
+
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Simulate AI response
+            setTimeout(() => {
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'chat-msg ai';
+                const reply = generateAIResponse(msg);
+                aiDiv.innerHTML = `<i class="fas fa-robot" style="margin-right:6px;"></i> ${reply}`;
+                chatBox.appendChild(aiDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 400 + Math.random() * 600);
+        }
+
+        function generateAIResponse(question) {
+            const q = question.toLowerCase();
+            if (q.includes('math') || q.includes('algebra') || q.includes('equation')) {
+                return '📐 Great question! Algebra is about finding unknown values. Try isolating the variable on one side of the equation. Need a specific example?';
+            } else if (q.includes('science') || q.includes('photosynthesis') || q.includes('cell')) {
+                return '🔬 Science is fascinating! Photosynthesis happens in chloroplasts. Sunlight + CO₂ + H₂O → Glucose + O₂. Want to dive deeper?';
+            } else if (q.includes('history') || q.includes('war') || q.includes('ancient')) {
+                return '📜 History helps us learn from the past. Which era are you interested in? I can give you a quick summary.';
+            } else if (q.includes('english') || q.includes('grammar') || q.includes('essay')) {
+                return '✍️ English is all about expression! Focus on clear structure: Introduction → Body → Conclusion. Need help with a specific topic?';
+            } else if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+                return '👋 Hello there! How can I assist with your studies today?';
+            } else if (q.includes('help') || q.includes('what can you do')) {
+                return '🤖 I\'m your AI study buddy! Ask me about math, science, history, English, or any subject. I\'ll do my best to help!';
+            } else {
+                const fallbacks = [
+                    '🤔 That\'s an interesting question! Can you give me more context?',
+                    '💡 I\'m not sure about that — but I can help with math, science, history, or English.',
+                    '📚 Let me think... Could you rephrase or specify a subject?',
+                    '🌟 I\'m here to help! Try asking about a specific topic.'
+                ];
+                return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+            }
+        }
+
+        // ============================================================
+        // HELPERS
+        // ============================================================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Remove active from all
+                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                // Hide all sections
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+                // Show target
+                const targetId = this.dataset.section;
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // ============================================================
+        // FORM HANDLING
+        // ============================================================
+        document.getElementById('addStudyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('studyTitle').value;
+            const desc = document.getElementById('studyDesc').value;
+            const category = document.getElementById('studyCategory').value;
+
+            if (title && desc) {
+                addStudy(title, desc, category);
+                this.reset();
+                // Switch to dashboard to see new item
+                document.querySelector('[data-section="dashboard"]').click();
+            }
+        });
+
+        // ============================================================
+        // CHAT HANDLING
+        // ============================================================
+        document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+        document.getElementById('chatInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        });
+
+        // ============================================================
+        // INIT
+        // ============================================================
+        loadData();
+        renderAll();
+    </script>
+</body>
+</html>
