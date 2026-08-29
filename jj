@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Console — AI Assistant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+ 
+<div class="app">
+ 
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="brand">CONSOLE<span>_</span></div>
+      <button class="icon-btn" id="closeSidebar" aria-label="Close">✕</button>
+    </div>
+ 
+    <button class="btn-new full" id="newChatBtn">+ New chat</button>
+ 
+    <div class="sb-section-label">History</div>
+    <div id="chatList" class="chat-list"></div>
+ 
+    <div class="sb-bottom">
+      <button class="toggle-link" id="settingsBtn">⚙ Settings</button>
+    </div>
+  </aside>
+ 
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <button class="icon-btn only-mobile" id="openSidebar" aria-label="Menu">☰</button>
+      <div class="model-select-wrap">
+        <select id="modelSelect" class="mono">
+          <option value="claude-sonnet-5">Claude Sonnet 5 — balanced, best for coding</option>
+          <option value="claude-opus-5">Claude Opus 5 — most capable, slower</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — fastest</option>
+        </select>
+      </div>
+      <div class="status mono" id="statusDot">● not connected</div>
+    </div>
+ 
+    <div class="thread" id="thread">
+      <div class="empty-state" id="emptyState">
+        <div class="eyebrow mono">SYSTEM READY</div>
+        <h1>What are we building?</h1>
+        <p>Ask a coding question, paste an error, or describe a problem. This runs on Claude — set your API key in Settings first.</p>
+      </div>
+    </div>
+ 
+    <form class="composer" id="composerForm">
+      <textarea id="input" class="mono" placeholder="Describe the problem, paste code, or ask anything…" rows="1"></textarea>
+      <button type="submit" class="btn-send" id="sendBtn">Send</button>
+    </form>
+    <div class="composer-hint mono">Shift+Enter for newline · Enter to send</div>
+  </main>
+ 
+</div>
+ 
+<!-- SETTINGS MODAL -->
+<div class="modal-backdrop" id="settingsModal" style="display:none;">
+  <div class="modal">
+    <div class="eyebrow mono">Settings</div>
+    <h2>Connect your API key</h2>
+ 
+    <label for="apiKeyInput">Anthropic API key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    <div class="hint">Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Anthropic's API.</div>
+ 
+    <label for="systemPromptInput">System prompt (assistant's persona / instructions)</label>
+    <textarea id="systemPromptInput" rows="5"></textarea>
+    <div class="hint">This is what makes the assistant behave the way you want — edit it any time.</div>
+ 
+    <div class="btn-row">
+      <button class="btn-primary" id="saveSettingsBtn">Save</button>
+      <button class="btn-ghost" id="closeSettingsBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
+ 
