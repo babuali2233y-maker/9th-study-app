@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Request Line — Song Requests</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="shell">
+  <div class="masthead">
+    <div class="brand">REQUEST<span>LINE</span></div>
+    <div class="tag">Ticket 000 · Studio Queue</div>
+  </div>
+
+  <div class="waveform" id="wave">
+    <!-- bars injected by JS -->
+  </div>
+
+  <!-- FORM STATE -->
+  <div class="ticket" id="formCard">
+    <div class="eyebrow">Song Request Slip</div>
+    <div class="title-lg">What should we make?</div>
+    <div class="sub">Describe the song and it goes straight into the queue.</div>
+
+    <form id="reqForm">
+      <label for="name">Your name</label>
+      <input type="text" id="name" placeholder="e.g. Ahmed" required maxlength="40">
+
+      <label for="prompt">Song idea</label>
+      <textarea id="prompt" placeholder="e.g. Ek upbeat urdu pop song dosti ke baare mein, guitar aur dhol ke saath" required maxlength="600"></textarea>
+
+      <label for="tags">Style / mood (optional)</label>
+      <input type="text" id="tags" placeholder="e.g. pop, upbeat, urdu" maxlength="80">
+
+      <div class="btn-row">
+        <button type="submit" class="btn-primary full" id="submitBtn">Send request</button>
+      </div>
+      <div class="hint">Admin reviews every request before it's generated.</div>
+    </form>
+  </div>
+
+  <!-- CONFIRMATION STATE -->
+  <div class="ticket" id="doneCard" style="display:none;">
+    <div class="eyebrow">Ticket Filed</div>
+    <div class="title-lg" id="doneTitle">You're in the queue.</div>
+    <div class="sub" id="doneSub">The admin will review your request soon.</div>
+    <button class="btn-ghost full" id="newReqBtn">Submit another request</button>
+  </div>
+
+  <div class="footer-note">Powered by Suno AI · requests are moderated</div>
+</div>
+
+<!-- Firebase SDK (compat build — simplest for plain JS) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

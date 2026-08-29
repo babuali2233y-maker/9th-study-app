@@ -1,0 +1,349 @@
+/* ============================================================
+   STUDIO TICKET — shared design tokens
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #17181A;
+  --surface: #1F2023;
+  --surface-raised: #26272B;
+  --paper: #F1EBDD;
+  --paper-dim: #E7E0CE;
+  --ink: #201F1C;
+  --ink-soft: #57534A;
+  --accent: #E8A33D;
+  --accent-soft: rgba(232, 163, 61, 0.16);
+  --teal: #3F7D74;
+  --teal-soft: rgba(63, 125, 116, 0.18);
+  --rust: #C1543C;
+  --rust-soft: rgba(193, 84, 60, 0.18);
+  --muted: #8B8D92;
+  --line: rgba(241, 235, 221, 0.12);
+  --radius: 3px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--paper);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(241,235,221,0.045) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+.mono { font-family: 'IBM Plex Mono', monospace; }
+
+h1, h2, h3, .display {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+a { color: var(--accent); }
+
+/* --- Layout shell --- */
+.shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+  margin-bottom: 8px;
+}
+
+.masthead .brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--paper);
+}
+
+.masthead .brand span { color: var(--accent); }
+
+.masthead .tag {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* --- Waveform signature element --- */
+.waveform {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 34px;
+  margin: 26px 0 30px;
+}
+
+.waveform i {
+  display: block;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.55;
+  border-radius: 1px;
+  animation: bar 1.6s ease-in-out infinite;
+}
+
+.waveform.idle i { animation-play-state: paused; opacity: 0.28; }
+
+@keyframes bar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+/* --- Ticket card (the signature motif) --- */
+.ticket {
+  background: var(--paper);
+  color: var(--ink);
+  border-radius: var(--radius);
+  position: relative;
+  padding: 26px 26px 22px;
+  box-shadow: 0 18px 40px -18px rgba(0,0,0,0.55);
+}
+
+.ticket::before {
+  content: "";
+  position: absolute;
+  left: -8px; right: -8px; top: -1px;
+  height: 1px;
+  border-top: 2px dashed transparent;
+}
+
+.ticket-perf {
+  position: relative;
+  height: 0;
+}
+
+.ticket-perf::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -1px;
+  border-top: 2px dashed rgba(32,31,28,0.18);
+}
+
+.eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 10px;
+}
+
+.title-lg {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.sub {
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+
+/* --- Form elements --- */
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 18px 0 6px;
+}
+
+label:first-of-type { margin-top: 0; }
+
+input[type="text"], input[type="email"], input[type="password"], textarea, select {
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  padding: 11px 12px;
+  border: 1px solid rgba(32,31,28,0.18);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+}
+
+textarea { min-height: 96px; resize: vertical; line-height: 1.45; }
+
+.hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.ticket .hint { color: var(--ink-soft); opacity: 0.8; }
+
+button, .btn {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  border: none;
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.15s ease;
+}
+
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background: var(--accent); color: #1B1B1D; }
+.btn-primary:hover:not(:disabled) { opacity: 0.9; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(32,31,28,0.22);
+  color: var(--ink);
+}
+
+.btn-dark { background: var(--ink); color: var(--paper); }
+.btn-dark:hover:not(:disabled) { opacity: 0.85; }
+
+.btn-danger { background: var(--rust-soft); color: var(--rust); border: 1px solid rgba(193,84,60,0.35); }
+
+.btn-row { display: flex; gap: 10px; margin-top: 22px; }
+
+.full { width: 100%; }
+
+/* --- Status badges --- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 20px;
+}
+
+.badge.pending { background: var(--accent-soft); color: #B87A1E; }
+.badge.generating { background: var(--teal-soft); color: var(--teal); }
+.badge.done { background: rgba(63,125,116,0.22); color: #2C5B54; }
+.badge.rejected { background: var(--rust-soft); color: var(--rust); }
+.badge.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* --- Admin dashboard --- */
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 22px;
+  margin: 4px 0 26px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.stat { }
+.stat .n { font-size: 22px; font-weight: 500; color: var(--paper); }
+.stat .l { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+.req-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.req-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.req-name { font-weight: 600; font-size: 14.5px; color: var(--paper); }
+.req-time { font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+.req-prompt { font-size: 14px; color: #D6D2C6; line-height: 1.55; margin-bottom: 10px; }
+.req-tags { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); margin-bottom: 12px; }
+
+.req-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.req-actions button { font-size: 12px; padding: 8px 14px; }
+
+.req-error { font-size: 12.5px; color: var(--rust); margin-top: 8px; font-family: 'IBM Plex Mono', monospace; }
+
+audio { width: 100%; margin-top: 10px; height: 34px; }
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+.settings-panel {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 26px;
+}
+
+.settings-panel label { color: var(--muted); }
+.settings-panel input, .settings-panel textarea {
+  background: var(--bg);
+  color: var(--paper);
+  border: 1px solid var(--line);
+}
+.settings-panel .hint { color: var(--muted); }
+
+.toggle-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11.5px;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.center-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.footer-note {
+  text-align: center;
+  margin-top: 30px;
+  font-size: 11.5px;
+  color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+@media (max-width: 480px) {
+  .title-lg { font-size: 23px; }
+  .ticket { padding: 20px 18px 18px; }
+}
