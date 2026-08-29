@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Classroom App - G•H & J•P</title>
+    <title>HASSAN & JUNAID STUDY APP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
+        /* ===== PREVIOUS DESIGN (Blue Gradient) ===== */
         * {
             margin: 0;
             padding: 0;
@@ -18,68 +19,103 @@
             color: #1a202c;
         }
 
-        /* ===== NAVBAR ===== */
-        .navbar {
-            background: linear-gradient(135deg, #2b6cb0, #2c5282);
+        /* ===== HEADER ===== */
+        .app-header {
+            background: linear-gradient(135deg, #1a365d, #2b6cb0, #2c5282);
             color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 1.2rem 2rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .navbar .brand {
-            font-size: 1.6rem;
+        .app-header h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+        }
+
+        .app-header h1 span {
+            color: #fbd38d;
+        }
+
+        .app-header .badge {
+            display: inline-block;
+            background: #fbd38d;
+            color: #1a365d;
+            padding: 0.2rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
             font-weight: 700;
+            margin-top: 0.3rem;
+        }
+
+        /* ===== NAVIGATION ===== */
+        .app-nav {
+            background: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #2b6cb0;
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-btn {
+            padding: 0.6rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #edf2f7;
+            color: #1a202c;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .navbar .brand i {
-            font-size: 1.8rem;
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
-        .navbar .owners {
-            font-size: 0.95rem;
-            background: rgba(255,255,255,0.15);
-            padding: 0.4rem 1rem;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .navbar .owners span {
-            font-weight: 600;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .nav-links a {
+        .nav-btn.active {
+            background: #2b6cb0;
             color: white;
-            text-decoration: none;
-            font-weight: 500;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            transition: background 0.3s;
+            box-shadow: 0 4px 12px rgba(43,108,176,0.3);
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: rgba(255,255,255,0.25);
+        .nav-btn.ai-btn {
+            background: linear-gradient(135deg, #fbd38d, #f6ad55);
+            color: #1a365d;
+        }
+
+        .nav-btn.ai-btn.active {
+            background: #2b6cb0;
+            color: white;
+        }
+
+        .nav-btn.admin-btn {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .nav-btn.admin-btn:hover {
+            background: #c53030;
         }
 
         /* ===== CONTAINER ===== */
         .container {
-            max-width: 1200px;
-            margin: 2rem auto;
+            max-width: 1300px;
+            margin: 1.5rem auto;
             padding: 0 1.5rem;
         }
 
@@ -94,82 +130,195 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* ===== CARDS ===== */
-        .card {
+        /* ===== STUDY GRID ===== */
+        .study-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .study-card {
             background: white;
             border-radius: 16px;
-            padding: 1.8rem;
+            overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-            margin-bottom: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
             border: 1px solid #e2e8f0;
         }
 
-        .card h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
+        .study-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
         }
 
-        .card h2 i {
+        .study-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        .study-card .content {
+            padding: 1.2rem;
+        }
+
+        .study-card .content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
             color: #2b6cb0;
         }
 
-        /* ===== ADMIN FORM ===== */
-        .admin-form input,
-        .admin-form textarea,
-        .admin-form select {
-            width: 100%;
-            padding: 0.75rem 1rem;
+        .study-card .content .desc {
+            color: #4a5568;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .study-card .content .meta {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 0.5rem;
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.3;
             margin-bottom: 1rem;
-            border: 1px solid #cbd5e0;
+        }
+
+        /* ===== MODALS ===== */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .admin-modal.show {
+            display: flex;
+        }
+
+        .admin-modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .admin-modal-content .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #718096;
+            transition: color 0.3s;
+        }
+
+        .admin-modal-content .close-btn:hover {
+            color: #e53e3e;
+        }
+
+        .admin-modal-content h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+            color: #2b6cb0;
+        }
+
+        .admin-modal-content label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .admin-modal-content input,
+        .admin-modal-content textarea,
+        .admin-modal-content select {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: border 0.3s;
         }
 
-        .admin-form input:focus,
-        .admin-form textarea:focus {
+        .admin-modal-content input:focus,
+        .admin-modal-content textarea:focus {
             outline: none;
             border-color: #2b6cb0;
-            box-shadow: 0 0 0 3px rgba(43,108,176,0.15);
         }
 
-        .admin-form textarea {
-            min-height: 100px;
+        .admin-modal-content textarea {
+            min-height: 80px;
             resize: vertical;
         }
 
+        .admin-modal-content .preview-img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 10px;
+            margin: 0.5rem 0 1rem;
+            display: none;
+        }
+
+        /* ===== BUTTONS ===== */
         .btn {
-            background: #2b6cb0;
-            color: white;
+            padding: 0.6rem 1.8rem;
             border: none;
-            padding: 0.7rem 1.8rem;
             border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 0.95rem;
             cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
+            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .btn:hover {
-            background: #1a4f7a;
+        .btn-primary {
+            background: #2b6cb0;
+            color: white;
         }
 
-        .btn:active {
-            transform: scale(0.96);
+        .btn-primary:hover {
+            background: #1a4f7a;
+            transform: scale(1.02);
         }
 
         .btn-danger {
             background: #e53e3e;
+            color: white;
         }
 
         .btn-danger:hover {
@@ -178,103 +327,116 @@
 
         .btn-success {
             background: #38a169;
+            color: white;
         }
 
         .btn-success:hover {
             background: #2f855a;
         }
 
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #2b6cb0;
-            color: #2b6cb0;
+        .btn-block {
+            width: 100%;
+            justify-content: center;
         }
 
-        .btn-outline:hover {
-            background: #2b6cb0;
-            color: white;
-        }
-
-        /* ===== STUDY LIST ===== */
-        .study-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .study-item {
-            background: white;
-            border-radius: 14px;
-            padding: 1.5rem;
-            border-left: 5px solid #2b6cb0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .study-item:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        }
-
-        .study-item h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.3rem;
-        }
-
-        .study-item .meta {
-            font-size: 0.85rem;
-            color: #718096;
-            margin-bottom: 0.6rem;
-        }
-
-        .study-item .desc {
-            color: #4a5568;
-            line-height: 1.5;
-        }
-
-        .study-item .actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.6rem;
-            flex-wrap: wrap;
-        }
-
-        .study-item .actions .btn {
+        .btn-sm {
             padding: 0.3rem 1rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
 
-        .badge {
-            display: inline-block;
-            background: #ebf8ff;
+        /* ===== PASSWORD MODAL ===== */
+        .password-modal .admin-modal-content {
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .password-modal .admin-modal-content .error-msg {
+            color: #e53e3e;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        /* ===== AI SECTION ===== */
+        .ai-container {
+            background: linear-gradient(135deg, #1a365d, #2b6cb0);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .ai-header .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.8rem;
+            font-size: 2.8rem;
             color: #2b6cb0;
-            padding: 0.2rem 0.8rem;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-right: 0.4rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
         }
 
-        /* ===== AI CHAT ===== */
-        .chat-box {
-            border: 1px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 1rem;
+        .ai-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .ai-header h2 span {
+            color: #fbd38d;
+        }
+
+        .ai-header p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        .ai-chat-box {
+            flex: 1;
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
             max-height: 400px;
             overflow-y: auto;
-            background: #f7fafc;
             margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .ai-chat-box::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .ai-chat-box::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .ai-chat-box::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 10px;
         }
 
         .chat-msg {
-            padding: 0.7rem 1rem;
+            padding: 0.7rem 1.2rem;
             border-radius: 14px;
             margin-bottom: 0.6rem;
-            max-width: 80%;
+            max-width: 85%;
+            animation: fadeIn 0.3s ease;
         }
 
         .chat-msg.user {
-            background: #2b6cb0;
+            background: rgba(255,255,255,0.15);
             color: white;
             margin-left: auto;
             border-bottom-right-radius: 4px;
@@ -282,341 +444,545 @@
 
         .chat-msg.ai {
             background: white;
-            border: 1px solid #e2e8f0;
+            color: #1a202c;
             margin-right: auto;
             border-bottom-left-radius: 4px;
         }
 
-        .chat-input-group {
+        .chat-msg.ai .ai-name {
+            font-weight: 700;
+            color: #2b6cb0;
+        }
+
+        .ai-input-group {
             display: flex;
             gap: 0.6rem;
         }
 
-        .chat-input-group input {
+        .ai-input-group input {
             flex: 1;
-            padding: 0.7rem 1rem;
-            border: 1px solid #cbd5e0;
+            padding: 0.8rem 1.2rem;
+            border: none;
             border-radius: 30px;
             font-size: 1rem;
+            background: rgba(255,255,255,0.12);
+            color: white;
+            backdrop-filter: blur(10px);
         }
 
-        .chat-input-group input:focus {
+        .ai-input-group input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .ai-input-group input:focus {
             outline: none;
-            border-color: #2b6cb0;
+            background: rgba(255,255,255,0.2);
         }
 
-        .chat-input-group .btn {
+        .ai-input-group .btn {
+            background: #fbd38d;
+            color: #1a365d;
             border-radius: 30px;
+        }
+
+        .ai-input-group .btn:hover {
+            background: #f6ad55;
+            transform: scale(1.02);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 0.5rem 1rem;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            padding: 2rem;
+            grid-column: 1 / -1;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2b6cb0;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== FOOTER ===== */
+        .app-footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: #718096;
+            font-size: 0.85rem;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 2rem;
+        }
+
+        .app-footer strong {
+            color: #2b6cb0;
         }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 0.5rem;
+            .app-header h1 {
+                font-size: 1.2rem;
             }
 
-            .navbar .brand {
-                font-size: 1.3rem;
+            .app-nav {
+                top: 70px;
+                gap: 0.3rem;
+                padding: 0.6rem;
             }
 
-            .nav-links {
-                justify-content: center;
-                flex-wrap: wrap;
+            .nav-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.75rem;
             }
 
             .study-grid {
                 grid-template-columns: 1fr;
             }
 
+            .ai-container {
+                padding: 1.2rem;
+            }
+
+            .ai-header h2 {
+                font-size: 1.4rem;
+            }
+
             .chat-msg {
                 max-width: 95%;
             }
-        }
-
-        /* ===== EMPTY STATE ===== */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            color: #718096;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.4;
-        }
-
-        .footer-note {
-            text-align: center;
-            margin-top: 3rem;
-            padding: 1.5rem;
-            color: #718096;
-            font-size: 0.9rem;
-            border-top: 1px solid #e2e8f0;
-        }
-
-        .footer-note strong {
-            color: #2b6cb0;
         }
     </style>
 </head>
 <body>
 
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar">
-        <div class="brand">
-            <i class="fas fa-chalkboard-teacher"></i>
-            ClassHub
-        </div>
-        <div class="owners">
-            <i class="fas fa-user-shield"></i>
-            Admins: <span>G•H</span> &amp; <span>J•P</span>
-        </div>
-        <div class="nav-links">
-            <a href="#" class="active" data-section="dashboard"><i class="fas fa-home"></i> Dashboard</a>
-            <a href="#" data-section="admin"><i class="fas fa-user-cog"></i> Admin</a>
-            <a href="#" data-section="ai"><i class="fas fa-robot"></i> AI Assistant</a>
-        </div>
+    <!-- ===== HEADER ===== -->
+    <header class="app-header">
+        <h1>📚 <span>HASSAN</span> &amp; <span>JUNAID</span> STUDY APP</h1>
+        <div class="badge">🎓 Premium Learning Platform</div>
+    </header>
+
+    <!-- ===== NAVIGATION ===== -->
+    <nav class="app-nav" id="mainNav">
+        <button class="nav-btn active" data-section="chemistry">🧪 Chemistry</button>
+        <button class="nav-btn" data-section="physics">⚛️ Physics</button>
+        <button class="nav-btn" data-section="biology">🧬 Biology</button>
+        <button class="nav-btn" data-section="english">📖 English</button>
+        <button class="nav-btn ai-btn" data-section="ai">🤖 HASSAN AI</button>
+        <button class="nav-btn admin-btn" onclick="openAdmin()">🔐 Admin</button>
     </nav>
+
+    <!-- ===== PASSWORD MODAL ===== -->
+    <div id="passwordModal" class="admin-modal password-modal">
+        <div class="admin-modal-content">
+            <h2>🔐 Admin Access</h2>
+            <p style="color:#718096; margin-bottom:1rem;">Enter password to continue</p>
+            <input type="password" id="adminPassword" placeholder="Enter password..." />
+            <div id="passwordError" class="error-msg">❌ Incorrect password!</div>
+            <button class="btn btn-primary btn-block" onclick="verifyPassword()">
+                <i class="fas fa-unlock"></i> Unlock
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== ADMIN MODAL ===== -->
+    <div id="adminModal" class="admin-modal">
+        <div class="admin-modal-content">
+            <span class="close-btn" onclick="closeAdmin()">&times;</span>
+            <h2>📝 Add Study Material</h2>
+            <form id="addStudyForm">
+                <label>Subject</label>
+                <select id="studySubject" required>
+                    <option value="Chemistry">🧪 Chemistry</option>
+                    <option value="Physics">⚛️ Physics</option>
+                    <option value="Biology">🧬 Biology</option>
+                    <option value="English">📖 English</option>
+                </select>
+
+                <label>Title</label>
+                <input type="text" id="studyTitle" placeholder="Enter title..." required />
+
+                <label>Description</label>
+                <textarea id="studyDesc" placeholder="Enter description..." required></textarea>
+
+                <label>Image URL</label>
+                <input type="text" id="studyImage" placeholder="https://example.com/image.jpg" />
+                <img id="imagePreview" class="preview-img" alt="Preview" />
+
+                <button type="submit" class="btn btn-success btn-block">
+                    <i class="fas fa-plus-circle"></i> Add Study
+                </button>
+            </form>
+
+            <hr style="margin:1.5rem 0;" />
+
+            <h2>📋 Manage Studies</h2>
+            <div id="adminStudyList"></div>
+        </div>
+    </div>
 
     <!-- ===== CONTAINER ===== -->
     <div class="container">
 
-        <!-- ===== DASHBOARD ===== -->
-        <div id="dashboard" class="section active">
-            <div class="card">
-                <h2><i class="fas fa-book-open"></i> Study Materials</h2>
-                <div id="studyList" class="study-grid">
-                    <!-- Dynamically rendered -->
-                </div>
+        <!-- ===== CHEMISTRY ===== -->
+        <div id="chemistry" class="section active">
+            <div class="study-grid" id="chemistryGrid">
+                <div class="loading-spinner"><div class="spinner"></div></div>
             </div>
         </div>
 
-        <!-- ===== ADMIN PANEL ===== -->
-        <div id="admin" class="section">
-            <div class="card">
-                <h2><i class="fas fa-plus-circle"></i> Add New Study</h2>
-                <form id="addStudyForm" class="admin-form">
-                    <input type="text" id="studyTitle" placeholder="Study title" required />
-                    <textarea id="studyDesc" placeholder="Description / content" required></textarea>
-                    <select id="studyCategory">
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Science">Science</option>
-                        <option value="English">English</option>
-                        <option value="History">History</option>
-                        <option value="Other">Other</option>
-                    </select>
-                    <button type="submit" class="btn"><i class="fas fa-save"></i> Add Study</button>
-                </form>
-            </div>
-
-            <div class="card">
-                <h2><i class="fas fa-list-ul"></i> Manage Studies</h2>
-                <div id="adminStudyList">
-                    <!-- Rendered same as dashboard but with delete buttons -->
-                </div>
+        <!-- ===== PHYSICS ===== -->
+        <div id="physics" class="section">
+            <div class="study-grid" id="physicsGrid">
+                <div class="loading-spinner"><div class="spinner"></div></div>
             </div>
         </div>
 
-        <!-- ===== AI ASSISTANT ===== -->
+        <!-- ===== BIOLOGY ===== -->
+        <div id="biology" class="section">
+            <div class="study-grid" id="biologyGrid">
+                <div class="loading-spinner"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- ===== ENGLISH ===== -->
+        <div id="english" class="section">
+            <div class="study-grid" id="englishGrid">
+                <div class="loading-spinner"><div class="spinner"></div></div>
+            </div>
+        </div>
+
+        <!-- ===== AI ===== -->
         <div id="ai" class="section">
-            <div class="card">
-                <h2><i class="fas fa-robot"></i> AI Study Assistant</h2>
-                <p style="color:#4a5568; margin-bottom:1rem;">
-                    Ask anything about your studies — get instant help!
-                </p>
-                <div id="chatMessages" class="chat-box">
+            <div class="ai-container">
+                <div class="ai-header">
+                    <div class="logo">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h2>🤖 <span>HASSAN</span> AI</h2>
+                    <p>Your intelligent study assistant — ask anything!</p>
+                </div>
+                <div id="aiChatBox" class="ai-chat-box">
                     <div class="chat-msg ai">
-                        <i class="fas fa-robot" style="margin-right:6px;"></i>
-                        Hello! I'm your AI study assistant. Ask me anything.
+                        <span class="ai-name">🧠 Hassan AI:</span> Assalam-o-Alaikum! I'm Hassan AI. How can I help you with your studies today?
                     </div>
                 </div>
-                <div class="chat-input-group">
-                    <input type="text" id="chatInput" placeholder="Type your question..." />
-                    <button id="sendChatBtn" class="btn"><i class="fas fa-paper-plane"></i> Send</button>
+                <div class="typing-indicator" id="typingIndicator">
+                    <i class="fas fa-circle-notch fa-spin"></i> Hassan AI is thinking...
+                </div>
+                <div class="ai-input-group">
+                    <input type="text" id="aiInput" placeholder="Ask me anything..." />
+                    <button id="aiSendBtn" class="btn"><i class="fas fa-paper-plane"></i> Send</button>
                 </div>
             </div>
         </div>
 
-        <div class="footer-note">
-            <i class="fas fa-graduation-cap"></i> ClassHub &bull; Built with ❤️ by <strong>G•H</strong> &amp; <strong>J•P</strong>
-        </div>
+        <footer class="app-footer">
+            <i class="fas fa-graduation-cap"></i> HASSAN &amp; JUNAID STUDY APP &bull; Built with ❤️
+        </footer>
     </div>
 
     <script>
         // ============================================================
-        // DATA STORE (localStorage for persistence)
+        // API CONFIGURATION
         // ============================================================
-        let studies = [];
+        const API_URL = window.location.origin + '/api';
+        let isAdminUnlocked = false;
 
-        // Load from localStorage or use defaults
-        function loadData() {
-            const stored = localStorage.getItem('classhub_studies');
-            if (stored) {
-                studies = JSON.parse(stored);
+        // ============================================================
+        // FETCH STUDIES
+        // ============================================================
+        async function fetchStudies() {
+            try {
+                const response = await fetch(`${API_URL}/studies`);
+                const data = await response.json();
+                return data.success ? data.data : [];
+            } catch (error) {
+                console.error('Error fetching studies:', error);
+                return [];
+            }
+        }
+
+        async function loadAllSubjects() {
+            const studies = await fetchStudies();
+            
+            const subjects = ['Chemistry', 'Physics', 'Biology', 'English'];
+            subjects.forEach(subject => {
+                const containerId = subject.toLowerCase() + 'Grid';
+                const container = document.getElementById(containerId);
+                const filtered = studies.filter(s => s.subject === subject);
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-book-open"></i>
+                            <p>No studies in ${subject} yet. Admin can add from the Admin panel!</p>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = filtered.map(s => `
+                        <div class="study-card">
+                            <img src="${s.image || 'https://via.placeholder.com/400x200?text=No+Image'}" 
+                                 alt="${s.title}" 
+                                 onerror="this.src='https://via.placeholder.com/400x200?text=Image+Not+Found'" />
+                            <div class="content">
+                                <h3>${escapeHtml(s.title)}</h3>
+                                <div class="desc">${escapeHtml(s.description)}</div>
+                                <div class="meta"><i class="far fa-calendar-alt"></i> ${new Date(s.createdAt).toLocaleDateString()}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            });
+        }
+
+        // ============================================================
+        // ADMIN FUNCTIONS
+        // ============================================================
+        function openAdmin() {
+            if (isAdminUnlocked) {
+                document.getElementById('adminModal').classList.add('show');
+                loadAdminList();
             } else {
-                // Seed with sample data
-                studies = [
-                    {
-                        id: Date.now() + 1,
-                        title: 'Introduction to Algebra',
-                        description: 'Basics of variables, equations, and linear functions.',
-                        category: 'Mathematics',
-                        createdAt: new Date().toLocaleDateString()
-                    },
-                    {
-                        id: Date.now() + 2,
-                        title: 'Photosynthesis',
-                        description: 'How plants convert sunlight into energy.',
-                        category: 'Science',
-                        createdAt: new Date().toLocaleDateString()
-                    }
-                ];
-                saveData();
+                document.getElementById('passwordModal').classList.add('show');
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('passwordError').style.display = 'none';
+                setTimeout(() => document.getElementById('adminPassword').focus(), 100);
             }
         }
 
-        function saveData() {
-            localStorage.setItem('classhub_studies', JSON.stringify(studies));
+        function closeAdmin() {
+            document.getElementById('adminModal').classList.remove('show');
         }
 
-        // ============================================================
-        // RENDER FUNCTIONS
-        // ============================================================
-        function renderStudies() {
-            const container = document.getElementById('studyList');
-            if (studies.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="grid-column:1/-1;">
-                        <i class="fas fa-folder-open"></i>
-                        <p>No studies added yet. Go to Admin panel to add!</p>
-                    </div>
-                `;
-                return;
+        async function verifyPassword() {
+            const pass = document.getElementById('adminPassword').value;
+            if (pass === 'Hijab') {
+                isAdminUnlocked = true;
+                document.getElementById('passwordModal').classList.remove('show');
+                document.getElementById('adminModal').classList.add('show');
+                await loadAdminList();
+                document.getElementById('adminPassword').value = '';
+            } else {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+                document.getElementById('adminPassword').focus();
             }
-
-            container.innerHTML = studies.map(s => `
-                <div class="study-item">
-                    <span class="badge">${s.category || 'General'}</span>
-                    <h3>${escapeHtml(s.title)}</h3>
-                    <div class="meta"><i class="far fa-calendar-alt"></i> ${s.createdAt || 'Just now'}</div>
-                    <div class="desc">${escapeHtml(s.description)}</div>
-                </div>
-            `).join('');
         }
 
-        function renderAdminList() {
+        document.getElementById('adminPassword').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') verifyPassword();
+        });
+
+        // ============================================================
+        // ADMIN CRUD
+        // ============================================================
+        async function loadAdminList() {
+            const studies = await fetchStudies();
             const container = document.getElementById('adminStudyList');
+            
             if (studies.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-plus-circle"></i>
-                        <p>No studies yet. Add one using the form above!</p>
-                    </div>
-                `;
+                container.innerHTML = `<div class="empty-state"><i class="fas fa-plus-circle"></i><p>No studies added yet.</p></div>`;
                 return;
             }
 
             container.innerHTML = studies.map((s, index) => `
-                <div class="study-item" style="margin-bottom:1rem;">
-                    <span class="badge">${s.category || 'General'}</span>
-                    <h3>${escapeHtml(s.title)}</h3>
-                    <div class="meta"><i class="far fa-calendar-alt"></i> ${s.createdAt || 'Just now'}</div>
-                    <div class="desc">${escapeHtml(s.description)}</div>
-                    <div class="actions">
-                        <button class="btn btn-danger" onclick="deleteStudy(${index})">
+                <div style="background:#f8fafc; padding:0.8rem; border-radius:10px; margin-bottom:0.6rem; border-left:4px solid #2b6cb0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
+                        <div>
+                            <strong>${escapeHtml(s.title)}</strong>
+                            <span style="font-size:0.8rem; color:#718096; margin-left:0.5rem;">${s.subject}</span>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteStudy('${s._id}')">
                             <i class="fas fa-trash"></i> Delete
                         </button>
                     </div>
+                    <div style="font-size:0.85rem; color:#4a5568; margin-top:0.3rem;">${escapeHtml(s.description)}</div>
+                    ${s.image ? `<img src="${s.image}" style="max-width:100px; max-height:60px; object-fit:cover; border-radius:6px; margin-top:0.3rem;" onerror="this.style.display='none'" />` : ''}
                 </div>
             `).join('');
         }
 
-        function renderAll() {
-            renderStudies();
-            renderAdminList();
-        }
+        async function deleteStudy(id) {
+            if (!confirm('Delete this study?')) return;
 
-        // ============================================================
-        // CRUD OPERATIONS
-        // ============================================================
-        function addStudy(title, description, category) {
-            const newStudy = {
-                id: Date.now(),
-                title: title.trim(),
-                description: description.trim(),
-                category: category || 'Other',
-                createdAt: new Date().toLocaleDateString()
-            };
-            studies.unshift(newStudy);
-            saveData();
-            renderAll();
-        }
+            const password = prompt('Enter admin password to confirm deletion:');
+            if (password !== 'Hijab') {
+                alert('❌ Incorrect password!');
+                return;
+            }
 
-        function deleteStudy(index) {
-            if (confirm('Delete this study?')) {
-                studies.splice(index, 1);
-                saveData();
-                renderAll();
+            try {
+                const response = await fetch(`${API_URL}/studies/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ Study deleted successfully!');
+                    await loadAllSubjects();
+                    await loadAdminList();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ Error deleting study');
             }
         }
 
         // ============================================================
-        // AI CHAT (Simulated)
+        // ADD STUDY FORM
         // ============================================================
-        function sendChatMessage() {
-            const input = document.getElementById('chatInput');
+        document.getElementById('addStudyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const subject = document.getElementById('studySubject').value;
+            const title = document.getElementById('studyTitle').value;
+            const description = document.getElementById('studyDesc').value;
+            const image = document.getElementById('studyImage').value;
+
+            const password = prompt('Enter admin password to add:');
+            if (password !== 'Hijab') {
+                alert('❌ Incorrect password!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/studies`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, title, description, image, password })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ Study added successfully!');
+                    this.reset();
+                    document.getElementById('imagePreview').style.display = 'none';
+                    await loadAllSubjects();
+                    await loadAdminList();
+                    closeAdmin();
+
+                    // Switch to subject tab
+                    const subjectMap = {
+                        'Chemistry': 'chemistry',
+                        'Physics': 'physics',
+                        'Biology': 'biology',
+                        'English': 'english'
+                    };
+                    const tabId = subjectMap[subject] || 'chemistry';
+                    document.querySelectorAll('.nav-btn:not(.admin-btn)').forEach(b => b.classList.remove('active'));
+                    document.querySelector(`[data-section="${tabId}"]`)?.classList.add('active');
+                    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch (error) {
+                alert('❌ Error adding study');
+            }
+        });
+
+        // Image preview
+        document.getElementById('studyImage').addEventListener('input', function() {
+            const preview = document.getElementById('imagePreview');
+            if (this.value) {
+                preview.src = this.value;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    this.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // ============================================================
+        // AI CHAT (Backend API)
+        // ============================================================
+        async function sendAIMessage() {
+            const input = document.getElementById('aiInput');
             const msg = input.value.trim();
             if (!msg) return;
 
-            const chatBox = document.getElementById('chatMessages');
+            const chatBox = document.getElementById('aiChatBox');
+            const typing = document.getElementById('typingIndicator');
 
             // Add user message
             const userDiv = document.createElement('div');
             userDiv.className = 'chat-msg user';
-            userDiv.innerHTML = `<i class="fas fa-user" style="margin-right:6px;"></i> ${escapeHtml(msg)}`;
+            userDiv.textContent = msg;
             chatBox.appendChild(userDiv);
 
             input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            // Simulate AI response
-            setTimeout(() => {
+            typing.classList.add('show');
+
+            try {
+                const response = await fetch(`${API_URL}/ai/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const data = await response.json();
+                typing.classList.remove('show');
+
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'chat-msg ai';
-                const reply = generateAIResponse(msg);
-                aiDiv.innerHTML = `<i class="fas fa-robot" style="margin-right:6px;"></i> ${reply}`;
+                aiDiv.innerHTML = `<span class="ai-name">🧠 Hassan AI:</span> ${data.message || 'Sorry, I couldn\'t process that.'}`;
                 chatBox.appendChild(aiDiv);
                 chatBox.scrollTop = chatBox.scrollHeight;
-            }, 400 + Math.random() * 600);
-        }
 
-        function generateAIResponse(question) {
-            const q = question.toLowerCase();
-            if (q.includes('math') || q.includes('algebra') || q.includes('equation')) {
-                return '📐 Great question! Algebra is about finding unknown values. Try isolating the variable on one side of the equation. Need a specific example?';
-            } else if (q.includes('science') || q.includes('photosynthesis') || q.includes('cell')) {
-                return '🔬 Science is fascinating! Photosynthesis happens in chloroplasts. Sunlight + CO₂ + H₂O → Glucose + O₂. Want to dive deeper?';
-            } else if (q.includes('history') || q.includes('war') || q.includes('ancient')) {
-                return '📜 History helps us learn from the past. Which era are you interested in? I can give you a quick summary.';
-            } else if (q.includes('english') || q.includes('grammar') || q.includes('essay')) {
-                return '✍️ English is all about expression! Focus on clear structure: Introduction → Body → Conclusion. Need help with a specific topic?';
-            } else if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
-                return '👋 Hello there! How can I assist with your studies today?';
-            } else if (q.includes('help') || q.includes('what can you do')) {
-                return '🤖 I\'m your AI study buddy! Ask me about math, science, history, English, or any subject. I\'ll do my best to help!';
-            } else {
-                const fallbacks = [
-                    '🤔 That\'s an interesting question! Can you give me more context?',
-                    '💡 I\'m not sure about that — but I can help with math, science, history, or English.',
-                    '📚 Let me think... Could you rephrase or specify a subject?',
-                    '🌟 I\'m here to help! Try asking about a specific topic.'
-                ];
-                return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+            } catch (error) {
+                typing.classList.remove('show');
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'chat-msg ai';
+                aiDiv.innerHTML = `<span class="ai-name">🧠 Hassan AI:</span> Oops! Something went wrong. Please try again.`;
+                chatBox.appendChild(aiDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
         }
+
+        document.getElementById('aiSendBtn').addEventListener('click', sendAIMessage);
+        document.getElementById('aiInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendAIMessage();
+        });
+
+        // ============================================================
+        // NAVIGATION
+        // ============================================================
+        document.querySelectorAll('.nav-btn:not(.admin-btn)').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.nav-btn:not(.admin-btn)').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                const sectionId = this.dataset.section;
+                document.getElementById(sectionId).classList.add('active');
+            });
+        });
 
         // ============================================================
         // HELPERS
@@ -628,54 +994,9 @@
         }
 
         // ============================================================
-        // NAVIGATION
-        // ============================================================
-        document.querySelectorAll('.nav-links a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Remove active from all
-                document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-                this.classList.add('active');
-
-                // Hide all sections
-                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-
-                // Show target
-                const targetId = this.dataset.section;
-                document.getElementById(targetId).classList.add('active');
-            });
-        });
-
-        // ============================================================
-        // FORM HANDLING
-        // ============================================================
-        document.getElementById('addStudyForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('studyTitle').value;
-            const desc = document.getElementById('studyDesc').value;
-            const category = document.getElementById('studyCategory').value;
-
-            if (title && desc) {
-                addStudy(title, desc, category);
-                this.reset();
-                // Switch to dashboard to see new item
-                document.querySelector('[data-section="dashboard"]').click();
-            }
-        });
-
-        // ============================================================
-        // CHAT HANDLING
-        // ============================================================
-        document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
-        document.getElementById('chatInput').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') sendChatMessage();
-        });
-
-        // ============================================================
         // INIT
         // ============================================================
-        loadData();
-        renderAll();
+        loadAllSubjects();
     </script>
 </body>
 </html>
