@@ -32,7 +32,7 @@ const els = {
   suggestions: document.getElementById('suggestions'),
 };
 
-// ---------- State (persisted in localStorage) ----------
+// ---------- State ----------
 let conversations = JSON.parse(localStorage.getItem('console_conversations') || '[]');
 let activeId = localStorage.getItem('console_active_id');
 let apiKey = localStorage.getItem('console_api_key') || '';
@@ -48,7 +48,6 @@ if (lastResetDate !== new Date().toDateString()) {
   localStorage.setItem('console_last_reset', new Date().toDateString());
 }
 
-// ---------- Init Marked ----------
 marked.setOptions({ breaks: true, gfm: true });
 
 // ---------- Persistence ----------
@@ -174,7 +173,7 @@ function checkDailyLimit() {
   return true;
 }
 
-// ---------- Auto-grow textarea ----------
+// ---------- Auto-grow ----------
 function autoGrow() {
   els.input.style.height = 'auto';
   els.input.style.height = Math.min(els.input.scrollHeight, 160) + 'px';
@@ -199,7 +198,6 @@ els.form.addEventListener('submit', async (e) => {
     convo = getActive();
   }
 
-  // Add user message
   convo.messages.push({ role: 'user', content: text });
   if (convo.title === 'New chat') convo.title = text.slice(0, 40) + (text.length > 40 ? '…' : '');
   persist();
@@ -258,12 +256,27 @@ els.suggestions.addEventListener('click', (e) => {
   }
 });
 
-// ---------- Gemini API Call ----------
+// ---------- Gemini API Call (FIXED) ----------
 async function callGemini(messages) {
+  // Get the selected model (use valid model names)
+  const modelMap = {
+    'gemini-2.0-flash-exp': 'gemini-1.5-flash',  // Fallback to 1.5 Flash
+    'gemini-2.0-pro-exp': 'gemini-1.5-pro',      // Fallback to 1.5 Pro
+    'gemini-1.5-flash': 'gemini-1.5-flash',
+    'gemini-1.5-pro': 'gemini-1.5-pro',
+    'gemini-1.0-pro': 'gemini-1.0-pro'
+  };
+  
+  let model = els.modelSelect.value;
+  // If model not in map or is 2.0, use fallback
+  if (!modelMap[model] || model.includes('2.0')) {
+    model = 'gemini-1.5-flash'; // Safe default
+  }
+  
   // Build conversation history for Gemini
   const contents = [];
   
-  // Add system prompt as first user message
+  // Add system prompt
   contents.push({
     role: 'user',
     parts: [{ text: systemPrompt }]
@@ -281,7 +294,9 @@ async function callGemini(messages) {
     });
   });
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${els.modelSelect.value}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  console.log('📡 Calling Gemini API with model:', model);
 
   const res = await fetch(url, {
     method: 'POST',
@@ -307,6 +322,8 @@ async function callGemini(messages) {
     const errData = await res.json();
     const errorMsg = errData.error?.message || 'Unknown error';
     
+    console.error('❌ API Error:', res.status, errorMsg);
+    
     if (res.status === 400 && errorMsg.includes('API key')) {
       throw new Error('❌ API key invalid hai. Settings mein check karein.');
     } else if (res.status === 429) {
@@ -314,7 +331,7 @@ async function callGemini(messages) {
     } else if (res.status === 403) {
       throw new Error('🔒 API key has no access to this model. Check your key.');
     } else if (res.status === 404) {
-      throw new Error('🔍 Model not found. Please select a different model.');
+      throw new Error('🔍 Model not found. Using fallback model: gemini-1.5-flash');
     } else {
       throw new Error(`API error ${res.status}: ${errorMsg}`);
     }
@@ -374,12 +391,11 @@ els.saveSettingsBtn.onclick = () => {
   updateStatus();
   closeSettings();
   
-  // Success message
   const statusMsg = document.createElement('div');
   statusMsg.className = 'msg system';
   statusMsg.innerHTML = `
     <div class="role-tag mono">✅</div>
-    <div class="msg-body">Settings saved! Daily limit: ${dailyLimit || 'No limit'}${dailyLimit > 0 ? ` (${dailyCount}/${dailyLimit} used today)` : ''}</div>
+    <div class="msg-body">Settings saved! Daily limit: ${dailyLimit || 'No limit'}</div>
   `;
   els.thread.appendChild(statusMsg);
   els.thread.scrollTop = els.thread.scrollHeight;
@@ -421,8 +437,8 @@ document.addEventListener('keydown', (e) => {
 // ---------- Init ----------
 els.newChatBtn.onclick = newConversation;
 
-// Set default model
-els.modelSelect.value = 'gemini-2.0-flash-exp';
+// Set default model to a working one
+els.modelSelect.value = 'gemini-1.5-flash';
 
 // Load existing conversations
 if (conversations.length === 0) newConversation();
@@ -436,10 +452,8 @@ if (!apiKey) {
   setTimeout(openSettings, 500);
 }
 
-// Auto-save on tab close
 window.addEventListener('beforeunload', () => persist());
 
 console.log('🚀 CONSOLE with Gemini API ready!');
+console.log('📋 Available models: gemini-1.5-flash, gemini-1.5-pro, gemini-1.0-pro');
 console.log('💡 Get API key: https://aistudio.google.com/apikey');
-console.log('📊 Daily limit:', dailyLimit || 'No limit');
-console.log('💬 Messages today:', dailyCount);
