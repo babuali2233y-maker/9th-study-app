@@ -1,6 +1,6 @@
 // ============================================================
 // CONSOLE — AI coding/problem-solving assistant
-// Calls the Google Gemini API directly from the browser.
+// Uses Google Gemini API directly from the browser.
 // ============================================================
 
 const DEFAULT_SYSTEM_PROMPT =
@@ -26,9 +26,10 @@ const els = {
   settingsModal: document.getElementById('settingsModal'),
   apiKeyInput: document.getElementById('apiKeyInput'),
   systemPromptInput: document.getElementById('systemPromptInput'),
+  dailyLimitInput: document.getElementById('dailyLimitInput'),
   saveSettingsBtn: document.getElementById('saveSettingsBtn'),
   closeSettingsBtn: document.getElementById('closeSettingsBtn'),
-  dailyLimitInput: document.getElementById('dailyLimitInput'),
+  suggestions: document.getElementById('suggestions'),
 };
 
 // ---------- State (persisted in localStorage) ----------
@@ -47,13 +48,16 @@ if (lastResetDate !== new Date().toDateString()) {
   localStorage.setItem('console_last_reset', new Date().toDateString());
 }
 
-marked.setOptions({ breaks: true });
+// ---------- Init Marked ----------
+marked.setOptions({ breaks: true, gfm: true });
 
+// ---------- Persistence ----------
 function persist() {
   localStorage.setItem('console_conversations', JSON.stringify(conversations));
   localStorage.setItem('console_active_id', activeId || '');
 }
 
+// ---------- Conversation Management ----------
 function newConversation() {
   const convo = { id: 'c_' + Date.now(), title: 'New chat', messages: [] };
   conversations.unshift(convo);
@@ -67,12 +71,14 @@ function getActive() {
   return conversations.find(c => c.id === activeId);
 }
 
+// ---------- Render Functions ----------
 function renderSidebar() {
   els.chatList.innerHTML = '';
   conversations.forEach(c => {
     const item = document.createElement('div');
     item.className = 'chat-item' + (c.id === activeId ? ' active' : '');
     item.innerHTML = `<span>${escapeHtml(c.title)}</span><span class="del mono">✕</span>`;
+    
     item.querySelector('span:first-child').onclick = () => {
       activeId = c.id;
       persist();
@@ -80,14 +86,18 @@ function renderSidebar() {
       renderThread();
       els.sidebar.classList.remove('open');
     };
+    
     item.querySelector('.del').onclick = (e) => {
       e.stopPropagation();
-      conversations = conversations.filter(x => x.id !== c.id);
-      if (activeId === c.id) activeId = conversations[0]?.id || null;
-      persist();
-      renderSidebar();
-      renderThread();
+      if (confirm('Delete this chat?')) {
+        conversations = conversations.filter(x => x.id !== c.id);
+        if (activeId === c.id) activeId = conversations[0]?.id || null;
+        persist();
+        renderSidebar();
+        renderThread();
+      }
     };
+    
     els.chatList.appendChild(item);
   });
 }
@@ -106,11 +116,14 @@ function renderThread() {
 function renderMessage(role, content) {
   const wrap = document.createElement('div');
   wrap.className = 'msg ' + role;
+  
   const tag = document.createElement('div');
   tag.className = 'role-tag mono';
   tag.textContent = role === 'user' ? 'you' : 'gemini';
+  
   const body = document.createElement('div');
   body.className = 'msg-body';
+  
   if (role === 'user') {
     body.textContent = content;
   } else {
@@ -119,16 +132,21 @@ function renderMessage(role, content) {
       hljs.highlightElement(block);
       const btn = document.createElement('button');
       btn.className = 'copy-btn mono';
-      btn.textContent = 'copy';
+      btn.textContent = '📋 copy';
       btn.onclick = () => {
-        navigator.clipboard.writeText(block.textContent);
-        btn.textContent = 'copied!';
-        setTimeout(() => (btn.textContent = 'copy'), 1200);
+        navigator.clipboard.writeText(block.textContent).then(() => {
+          btn.textContent = '✅ copied!';
+          setTimeout(() => (btn.textContent = '📋 copy'), 1500);
+        }).catch(() => {
+          btn.textContent = '❌ failed';
+          setTimeout(() => (btn.textContent = '📋 copy'), 1500);
+        });
       };
       block.parentElement.style.position = 'relative';
       block.parentElement.appendChild(btn);
     });
   }
+  
   wrap.appendChild(tag);
   wrap.appendChild(body);
   return wrap;
@@ -140,12 +158,15 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
-// ---------- Check daily limit ----------
+// ---------- Daily Limit ----------
 function checkDailyLimit() {
   if (dailyLimit > 0 && dailyCount >= dailyLimit) {
     const errorMsg = document.createElement('div');
     errorMsg.className = 'msg error';
-    errorMsg.innerHTML = `<div class="role-tag mono">⚠️</div><div class="msg-body">Daily message limit (${dailyLimit}) reached. Please try again tomorrow. ✨</div>`;
+    errorMsg.innerHTML = `
+      <div class="role-tag mono">⛔</div>
+      <div class="msg-body">Daily message limit (${dailyLimit}) reached. Please try again tomorrow. 🌙</div>
+    `;
     els.thread.appendChild(errorMsg);
     els.thread.scrollTop = els.thread.scrollHeight;
     return false;
@@ -153,7 +174,13 @@ function checkDailyLimit() {
   return true;
 }
 
-// ---------- Sending messages ----------
+// ---------- Auto-grow textarea ----------
+function autoGrow() {
+  els.input.style.height = 'auto';
+  els.input.style.height = Math.min(els.input.scrollHeight, 160) + 'px';
+}
+
+// ---------- Send Message ----------
 els.form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = els.input.value.trim();
@@ -164,7 +191,6 @@ els.form.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Check daily limit
   if (!checkDailyLimit()) return;
 
   let convo = getActive();
@@ -173,8 +199,9 @@ els.form.addEventListener('submit', async (e) => {
     convo = getActive();
   }
 
+  // Add user message
   convo.messages.push({ role: 'user', content: text });
-  if (convo.title === 'New chat') convo.title = text.slice(0, 40);
+  if (convo.title === 'New chat') convo.title = text.slice(0, 40) + (text.length > 40 ? '…' : '');
   persist();
   renderSidebar();
   renderThread();
@@ -183,10 +210,13 @@ els.form.addEventListener('submit', async (e) => {
   autoGrow();
   els.sendBtn.disabled = true;
 
-  // typing indicator
+  // Typing indicator
   const typingWrap = document.createElement('div');
   typingWrap.className = 'msg assistant';
-  typingWrap.innerHTML = `<div class="role-tag mono">gemini</div><div class="msg-body"><div class="typing"><i></i><i></i><i></i></div></div>`;
+  typingWrap.innerHTML = `
+    <div class="role-tag mono">gemini</div>
+    <div class="msg-body"><div class="typing"><i></i><i></i><i></i></div></div>
+  `;
   els.thread.appendChild(typingWrap);
   els.thread.scrollTop = els.thread.scrollHeight;
 
@@ -194,19 +224,22 @@ els.form.addEventListener('submit', async (e) => {
     const reply = await callGemini(convo.messages);
     convo.messages.push({ role: 'assistant', content: reply });
     
-    // Increment daily count
     dailyCount++;
     localStorage.setItem('console_daily_count', dailyCount.toString());
     
     persist();
     renderThread();
+    updateStatus();
   } catch (err) {
-    typingWrap.querySelector('.msg-body').innerHTML = `<div class="error-msg">⚠️ ${escapeHtml(err.message)}</div>`;
+    typingWrap.querySelector('.msg-body').innerHTML = `
+      <div class="error-msg">⚠️ ${escapeHtml(err.message)}</div>
+    `;
   } finally {
     els.sendBtn.disabled = false;
   }
 });
 
+// ---------- Input Events ----------
 els.input.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -215,33 +248,44 @@ els.input.addEventListener('keydown', (e) => {
 });
 els.input.addEventListener('input', autoGrow);
 
-function autoGrow() {
-  els.input.style.height = 'auto';
-  els.input.style.height = Math.min(els.input.scrollHeight, 160) + 'px';
-}
+// ---------- Suggestions ----------
+els.suggestions.addEventListener('click', (e) => {
+  const chip = e.target.closest('.suggestion-chip');
+  if (chip) {
+    els.input.value = chip.dataset.text;
+    els.input.focus();
+    autoGrow();
+  }
+});
 
 // ---------- Gemini API Call ----------
 async function callGemini(messages) {
-  // Prepare conversation history for Gemini
-  const history = messages.map(m => ({
-    role: m.role === 'user' ? 'user' : 'model',
-    parts: [{ text: m.content }]
-  }));
-
-  // System prompt as first message
-  const contents = [
-    { role: 'user', parts: [{ text: systemPrompt }] },
-    { role: 'model', parts: [{ text: 'Understood. I\'ll follow these instructions.' }] },
-    ...history
-  ];
+  // Build conversation history for Gemini
+  const contents = [];
+  
+  // Add system prompt as first user message
+  contents.push({
+    role: 'user',
+    parts: [{ text: systemPrompt }]
+  });
+  contents.push({
+    role: 'model',
+    parts: [{ text: 'Understood. I will follow these instructions.' }]
+  });
+  
+  // Add conversation history
+  messages.forEach(m => {
+    contents.push({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    });
+  });
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${els.modelSelect.value}:generateContent?key=${apiKey}`;
 
   const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       contents: contents,
       generationConfig: {
@@ -251,22 +295,10 @@ async function callGemini(messages) {
         topK: 40,
       },
       safetySettings: [
-        {
-          category: "HARM_CATEGORY_HARASSMENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_HATE_SPEECH",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        },
-        {
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold: "BLOCK_MEDIUM_AND_ABOVE"
-        }
+        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" }
       ]
     })
   });
@@ -280,7 +312,9 @@ async function callGemini(messages) {
     } else if (res.status === 429) {
       throw new Error('⏳ Too many requests. Please wait a moment and try again.');
     } else if (res.status === 403) {
-      throw new Error('🔒 API key has no access to this model. Please check your key.');
+      throw new Error('🔒 API key has no access to this model. Check your key.');
+    } else if (res.status === 404) {
+      throw new Error('🔍 Model not found. Please select a different model.');
     } else {
       throw new Error(`API error ${res.status}: ${errorMsg}`);
     }
@@ -295,8 +329,7 @@ async function callGemini(messages) {
     throw new Error('No response from Gemini. Please try again.');
   }
 
-  const text = data.candidates[0].content.parts[0].text;
-  return text || '(empty response)';
+  return data.candidates[0].content.parts[0].text || '(empty response)';
 }
 
 // ---------- Settings ----------
@@ -305,6 +338,7 @@ function openSettings() {
   els.systemPromptInput.value = systemPrompt;
   els.dailyLimitInput.value = dailyLimit || '';
   els.settingsModal.style.display = 'flex';
+  els.apiKeyInput.focus();
 }
 
 function closeSettings() {
@@ -313,6 +347,7 @@ function closeSettings() {
 
 els.settingsBtn.onclick = openSettings;
 els.closeSettingsBtn.onclick = closeSettings;
+
 els.settingsModal.addEventListener('click', (e) => {
   if (e.target === els.settingsModal) closeSettings();
 });
@@ -324,6 +359,7 @@ els.saveSettingsBtn.onclick = () => {
   
   if (!newApiKey) {
     alert('⚠️ Please enter your Gemini API key.');
+    els.apiKeyInput.focus();
     return;
   }
 
@@ -338,36 +374,55 @@ els.saveSettingsBtn.onclick = () => {
   updateStatus();
   closeSettings();
   
-  // Show success feedback
+  // Success message
   const statusMsg = document.createElement('div');
   statusMsg.className = 'msg system';
-  statusMsg.innerHTML = `<div class="role-tag mono">✅</div><div class="msg-body">Settings saved successfully! Daily limit: ${dailyLimit || 'No limit'}</div>`;
+  statusMsg.innerHTML = `
+    <div class="role-tag mono">✅</div>
+    <div class="msg-body">Settings saved! Daily limit: ${dailyLimit || 'No limit'}${dailyLimit > 0 ? ` (${dailyCount}/${dailyLimit} used today)` : ''}</div>
+  `;
   els.thread.appendChild(statusMsg);
   els.thread.scrollTop = els.thread.scrollHeight;
-  setTimeout(() => statusMsg.remove(), 3000);
+  setTimeout(() => statusMsg.remove(), 4000);
 };
 
+// ---------- Status Update ----------
 function updateStatus() {
   if (apiKey) {
-    els.statusDot.textContent = `● connected ${dailyLimit > 0 ? `(${dailyCount}/${dailyLimit})` : ''}`;
-    els.statusDot.classList.add('ok');
+    let statusText = `● connected`;
+    if (dailyLimit > 0) {
+      statusText += ` (${dailyCount}/${dailyLimit})`;
+      els.statusDot.className = 'status mono limited';
+    } else {
+      els.statusDot.className = 'status mono ok';
+    }
+    els.statusDot.textContent = statusText;
   } else {
     els.statusDot.textContent = '● not connected';
-    els.statusDot.classList.remove('ok');
+    els.statusDot.className = 'status mono';
   }
 }
 
-// ---------- Sidebar mobile toggle ----------
+// ---------- Sidebar Toggle ----------
 els.openSidebar.onclick = () => els.sidebar.classList.add('open');
 els.closeSidebar.onclick = () => els.sidebar.classList.remove('open');
+
+// ---------- Keyboard Shortcuts ----------
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'N') {
+    e.preventDefault();
+    newConversation();
+  }
+  if (e.key === 'Escape' && els.settingsModal.style.display === 'flex') {
+    closeSettings();
+  }
+});
 
 // ---------- Init ----------
 els.newChatBtn.onclick = newConversation;
 
 // Set default model
-if (!els.modelSelect.querySelector('option[selected]')) {
-  els.modelSelect.value = 'gemini-2.0-flash-exp';
-}
+els.modelSelect.value = 'gemini-2.0-flash-exp';
 
 // Load existing conversations
 if (conversations.length === 0) newConversation();
@@ -378,26 +433,13 @@ updateStatus();
 
 // Show settings if no API key
 if (!apiKey) {
-  setTimeout(openSettings, 400);
+  setTimeout(openSettings, 500);
 }
 
-// ---- Keyboard shortcuts ----
-document.addEventListener('keydown', (e) => {
-  // Ctrl+Shift+N for new chat
-  if (e.ctrlKey && e.shiftKey && e.key === 'N') {
-    e.preventDefault();
-    newConversation();
-  }
-  // Escape to close modal
-  if (e.key === 'Escape' && els.settingsModal.style.display === 'flex') {
-    closeSettings();
-  }
-});
+// Auto-save on tab close
+window.addEventListener('beforeunload', () => persist());
 
-// ---- Auto-save on tab close ----
-window.addEventListener('beforeunload', () => {
-  persist();
-});
-
-console.log('🚀 CONSOLE with Gemini API loaded successfully!');
-console.log('💡 Get your API key from: https://aistudio.google.com/apikey');
+console.log('🚀 CONSOLE with Gemini API ready!');
+console.log('💡 Get API key: https://aistudio.google.com/apikey');
+console.log('📊 Daily limit:', dailyLimit || 'No limit');
+console.log('💬 Messages today:', dailyCount);
