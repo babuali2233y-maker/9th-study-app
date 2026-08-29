@@ -1,70 +1,23 @@
-# Request Line — Suno Song Request App
-
-Do pages hain:
-- **index.html** — public form, koi bhi song request bhej sakta hai
-- **admin.html** — sirf aapke liye (login required), requests dikhti hain, aap "Generate" dabate hain to Suno API call hoti hai
-
-Data (requests) Firebase Firestore mein store hota hai taake public form aur aapka admin dashboard aapas mein sync rahein.
-
----
-
-## Step 1 — Firebase project banayein (free)
-
-1. https://console.firebase.google.com kholein → **Add project** → naam de kar create karein.
-2. Project ke andar: **Build → Authentication → Get started → Sign-in method → Email/Password → Enable**.
-3. **Authentication → Users → Add user** — apna email + ek strong password daalein. Yehi admin login hai.
-4. **Build → Firestore Database → Create database → Production mode → location choose karein**.
-5. **Firestore → Rules** tab mein neeche ye rules paste kar ke **Publish** karein:
-
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /requests/{requestId} {
-      allow create: if request.resource.data.keys().hasAll(['name','prompt','status'])
-                    && request.resource.data.status == 'pending';
-      allow read, update, delete: if request.auth != null;
-    }
-  }
-}
-```
-
-Isse koi bhi request bhej sakta hai (public form), lekin sirf sign-in kiya hua admin (aap) unhe dekh/edit/delete kar sakta hai.
-
-6. **Project settings (⚙️) → General → Your apps → Web (`</>`)** se app register karein, naam kuch bhi rakh dein, "Firebase Hosting" ka checkbox **skip** kar dein.
-7. Wahan mila hua `firebaseConfig` object copy karke `firebase-config.js` file mein paste kar dein (jahan `PASTE_YOUR_...` likha hai).
-
-> Ye Firebase `apiKey` public rehna normal hai — asal security **Firestore Rules** se aati hai (upar wali), na ke key chupane se. Isliye ye code mein rehna theek hai.
-
----
-
-## Step 2 — Suno API connect karein
-
-Suno ki koi ek "official" public API nahi hai — log alag-alag third-party providers (jaise piapi.ai, sunoapi.org, kie.ai) use karte hain, aur har ek ka endpoint path aur response format thoda alag hota hai.
-
-Isliye API key **code mein nahi**, admin dashboard ke andar hi daalni hai:
-
-1. `admin.html` kholein, sign in karein.
-2. Top-right pe **"API settings"** click karein.
-3. Apne provider ki **Base URL**, **API key**, aur **generate endpoint path** daal kar **Save settings** karein.
-4. Ye sirf aapke browser mein (localStorage) save hoti hai — GitHub pe kabhi commit nahi hoti.
-
-Agar "Generate" click karne pe error aaye ya audio URL na mile, to `admin.js` mein `generateSong()` function ke andar comments dekhein — wahan response ka shape apne provider ke actual docs se match karna hoga (2 jagah: request body, aur audio URL nikalne wali line).
-
----
-
-## Step 3 — GitHub Pages pe daalna
-
-1. GitHub pe naya repository banayein (public).
-2. Ye saari files (`index.html`, `admin.html`, `style.css`, `app.js`, `admin.js`, `firebase-config.js`) upload/push kar dein.
-3. Repo → **Settings → Pages → Source: "Deploy from a branch" → Branch: main → / (root)** select karke Save karein.
-4. Kuch minute baad `https://<aapka-username>.github.io/<repo-naam>/` pe site live ho jayegi.
-5. `index.html` ka link doosron ko dein (requests ke liye), `admin.html` sirf apne paas rakhein.
-
----
-
-## Security note (zaroor parhein)
-
-- **Kabhi bhi** Suno API key ya kisi bhi service ki secret key `.js`/`.html` file mein hardcode na karein jo GitHub pe public jaye — koi bhi "View Source" karke wo nikaal sakta hai. Isi liye ye app key ko browser localStorage mein rakhta hai, code mein nahi.
-- Admin login Firebase Authentication se real hai (email+password) — sirf aap login kar sakte hain, na ke koi random link uthane wala.
-- Public form sirf naya request "create" kar sakta hai — purani requests padhna, badalna ya delete karna sirf logged-in admin kar sakta hai (Firestore rules isko enforce karti hain).
+# Console — AI Coding Assistant
+ 
+Ye ek pura chat app hai jaisa aap mujhse (Claude) baat karte hain — coding aur problem-solving ke liye. 3 files hain: `index.html`, `style.css`, `app.js`. Koi backend nahi chahiye, seedha browser se Claude API ko call karta hai.
+ 
+## Chalane ka tareeqa
+ 
+1. Sab files ek folder mein rakhein, `index.html` kholein (double-click ya koi bhi static server, GitHub Pages pe bhi daal sakte hain — pehle Suno project ki tarah).
+2. Pehli baar khulne pe Settings popup aayega — apni **Anthropic API key** paste karein (banayein: https://console.anthropic.com → API Keys).
+3. Model choose karein (Sonnet 5 coding ke liye best hai), likhna shuru karein.
+## Ye kaise kaam karta hai
+ 
+- Har message seedha `https://api.anthropic.com/v1/messages` pe jata hai, aapki API key ke sath.
+- API key sirf **aapke browser** ke localStorage mein rehti hai — kisi file mein nahi, GitHub pe nahi jati.
+- Conversations bhi localStorage mein save hoti hain (sidebar mein history dikhti hai) — sirf usi browser/device pe.
+- System prompt (Settings mein) badal ke assistant ka "persona"/instructions customize kar sakte hain — yehi wo jagah hai jahan aap decide karte hain ye assistant kaise react/kaam kare.
+## Zaroori baat (security)
+ 
+- Ye key sirf **aapke apne istemal** ke liye hai. Agar ye page kisi aur ko/public ko share ki, to aapki API key unke browser mein bhi save ho sakti hai agar wo apni key na daalein — is liye is link ko sirf khud tak rakhein (jaise admin.html wala Suno panel).
+- Agar aap chahte hain ke doosre log bhi is assistant ko use karein bina aapki key dekhe, to ek chhota backend/proxy (Cloudflare Worker ya Node server) chahiye hoga jo key ko chupaye — abhi ye direct "bring your own key" pattern hai, jo Anthropic khud recommend karta hai personal/internal tools ke liye.
+## Integration
+ 
+Agar apne kisi app mein integrate karna hai, to `app.js` ka `callClaude()` function hi wo core piece hai — usay copy karke apne project mein use kar sakte hain.
+ 
