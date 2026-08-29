@@ -3,60 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Request Line — Song Requests</title>
+<title>Console — AI Assistant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<div class="shell">
-  <div class="masthead">
-    <div class="brand">REQUEST<span>LINE</span></div>
-    <div class="tag">Ticket 000 · Studio Queue</div>
-  </div>
-
-  <div class="waveform" id="wave">
-    <!-- bars injected by JS -->
-  </div>
-
-  <!-- FORM STATE -->
-  <div class="ticket" id="formCard">
-    <div class="eyebrow">Song Request Slip</div>
-    <div class="title-lg">What should we make?</div>
-    <div class="sub">Describe the song and it goes straight into the queue.</div>
-
-    <form id="reqForm">
-      <label for="name">Your name</label>
-      <input type="text" id="name" placeholder="e.g. Ahmed" required maxlength="40">
-
-      <label for="prompt">Song idea</label>
-      <textarea id="prompt" placeholder="e.g. Ek upbeat urdu pop song dosti ke baare mein, guitar aur dhol ke saath" required maxlength="600"></textarea>
-
-      <label for="tags">Style / mood (optional)</label>
-      <input type="text" id="tags" placeholder="e.g. pop, upbeat, urdu" maxlength="80">
-
-      <div class="btn-row">
-        <button type="submit" class="btn-primary full" id="submitBtn">Send request</button>
+ 
+<div class="app">
+ 
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="brand">CONSOLE<span>_</span></div>
+      <button class="icon-btn" id="closeSidebar" aria-label="Close">✕</button>
+    </div>
+ 
+    <button class="btn-new full" id="newChatBtn">+ New chat</button>
+ 
+    <div class="sb-section-label">History</div>
+    <div id="chatList" class="chat-list"></div>
+ 
+    <div class="sb-bottom">
+      <button class="toggle-link" id="settingsBtn">⚙ Settings</button>
+    </div>
+  </aside>
+ 
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <button class="icon-btn only-mobile" id="openSidebar" aria-label="Menu">☰</button>
+      <div class="model-select-wrap">
+        <select id="modelSelect" class="mono">
+          <option value="claude-sonnet-5">Claude Sonnet 5 — balanced, best for coding</option>
+          <option value="claude-opus-5">Claude Opus 5 — most capable, slower</option>
+          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — fastest</option>
+        </select>
       </div>
-      <div class="hint">Admin reviews every request before it's generated.</div>
+      <div class="status mono" id="statusDot">● not connected</div>
+    </div>
+ 
+    <div class="thread" id="thread">
+      <div class="empty-state" id="emptyState">
+        <div class="eyebrow mono">SYSTEM READY</div>
+        <h1>What are we building?</h1>
+        <p>Ask a coding question, paste an error, or describe a problem. This runs on Claude — set your API key in Settings first.</p>
+      </div>
+    </div>
+ 
+    <form class="composer" id="composerForm">
+      <textarea id="input" class="mono" placeholder="Describe the problem, paste code, or ask anything…" rows="1"></textarea>
+      <button type="submit" class="btn-send" id="sendBtn">Send</button>
     </form>
-  </div>
-
-  <!-- CONFIRMATION STATE -->
-  <div class="ticket" id="doneCard" style="display:none;">
-    <div class="eyebrow">Ticket Filed</div>
-    <div class="title-lg" id="doneTitle">You're in the queue.</div>
-    <div class="sub" id="doneSub">The admin will review your request soon.</div>
-    <button class="btn-ghost full" id="newReqBtn">Submit another request</button>
-  </div>
-
-  <div class="footer-note">Powered by Suno AI · requests are moderated</div>
+    <div class="composer-hint mono">Shift+Enter for newline · Enter to send</div>
+  </main>
+ 
 </div>
-
-<!-- Firebase SDK (compat build — simplest for plain JS) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+ 
+<!-- SETTINGS MODAL -->
+<div class="modal-backdrop" id="settingsModal" style="display:none;">
+  <div class="modal">
+    <div class="eyebrow mono">Settings</div>
+    <h2>Connect your API key</h2>
+ 
+    <label for="apiKeyInput">Anthropic API key</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    <div class="hint">Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Anthropic's API.</div>
+ 
+    <label for="systemPromptInput">System prompt (assistant's persona / instructions)</label>
+    <textarea id="systemPromptInput" rows="5"></textarea>
+    <div class="hint">This is what makes the assistant behave the way you want — edit it any time.</div>
+ 
+    <div class="btn-row">
+      <button class="btn-primary" id="saveSettingsBtn">Save</button>
+      <button class="btn-ghost" id="closeSettingsBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+ 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
+ 
