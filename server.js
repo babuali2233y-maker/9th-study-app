@@ -1,146 +1,226 @@
-const express = require("express");
-const path = require("path");
-const cors = require("cors");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const db = require("./database");
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || "CHANGE_THIS_SECRET_BEFORE_DEPLOYING";
 
+// ============================================================
+// MIDDLEWARE
+// ============================================================
+app.use(helmet());
 app.use(cors());
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-function auth(req, res, next) {
-  const header = req.headers.authorization || "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
-  if (!token) return res.status(401).json({ error: "Login required" });
-  try {
-    req.user = jwt.verify(token, JWT_SECRET);
-    next();
-  } catch {
-    res.status(401).json({ error: "Invalid or expired token" });
-  }
-}
+// Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use('/api/', limiter);
 
-function admin(req, res, next) {
-  if (req.user?.role !== "admin") return res.status(403).json({ error: "Admin only" });
-  next();
-}
+// ============================================================
+// DATABASE CONNECTION
+// ============================================================
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected successfully'))
+.catch(err => console.error('❌ MongoDB connection error:', err));
 
-app.post("/api/auth/register", async (req, res) => {
-  const { name, email, password } = req.body;
-  if (!name || !email || !password || password.length < 6)
-    return res.status(400).json({ error: "Name, email and 6+ character password are required" });
-
-  const normalized = email.trim().toLowerCase();
-  const exists = db.prepare("SELECT id FROM users WHERE email=?").get(normalized);
-  if (exists) return res.status(409).json({ error: "Email already registered" });
-
-  const hash = await bcrypt.hash(password, 10);
-  const result = db.prepare("INSERT INTO users(name,email,password_hash,role) VALUES(?,?,?,'student')")
-    .run(name.trim(), normalized, hash);
-
-  const user = { id: result.lastInsertRowid, name: name.trim(), email: normalized, role: "student" };
-  const token = jwt.sign(user, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, user });
+// ============================================================
+// MODELS
+// ============================================================
+const StudySchema = new mongoose.Schema({
+    subject: {
+        type: String,
+        required: true,
+        enum: ['Chemistry', 'Physics', 'Biology', 'English']
+    },
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    description: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    image: {
+        type: String,
+        default: ''
+    },
+    createdBy: {
+        type: String,
+        default: 'Admin'
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
-app.post("/api/auth/login", async (req, res) => {
-  const { email, password } = req.body;
-  const user = db.prepare("SELECT * FROM users WHERE email=?").get((email || "").trim().toLowerCase());
-  if (!user || !(await bcrypt.compare(password || "", user.password_hash)))
-    return res.status(401).json({ error: "Invalid email or password" });
+const Study = mongoose.model('Study', StudySchema);
 
-  const safe = { id: user.id, name: user.name, email: user.email, role: user.role };
-  const token = jwt.sign(safe, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, user: safe });
+// ============================================================
+// ROUTES
+// ============================================================
+
+// 🟢 GET all studies
+app.get('/api/studies', async (req, res) => {
+    try {
+        const studies = await Study.find().sort({ createdAt: -1 });
+        res.json({ success: true, data: studies });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
-app.get("/api/me", auth, (req,res)=>res.json({user:req.user}));
-
-app.get("/api/subjects", (req,res) => {
-  res.json(db.prepare("SELECT * FROM subjects ORDER BY id").all());
+// 🟢 GET studies by subject
+app.get('/api/studies/:subject', async (req, res) => {
+    try {
+        const studies = await Study.find({ 
+            subject: req.params.subject 
+        }).sort({ createdAt: -1 });
+        res.json({ success: true, data: studies });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
-app.get("/api/subjects/:id/chapters", (req,res) => {
-  res.json(db.prepare("SELECT * FROM chapters WHERE subject_id=? ORDER BY id").all(req.params.id));
+// 🔐 POST add new study (Admin only)
+app.post('/api/studies', async (req, res) => {
+    try {
+        const { subject, title, description, image, password } = req.body;
+        
+        // Check admin password
+        if (password !== process.env.ADMIN_PASSWORD) {
+            return res.status(401).json({ 
+                success: false, 
+                message: '❌ Invalid admin password!' 
+            });
+        }
+
+        const study = new Study({
+            subject,
+            title,
+            description,
+            image: image || ''
+        });
+
+        await study.save();
+        res.status(201).json({ 
+            success: true, 
+            message: '✅ Study added successfully!',
+            data: study 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
-app.get("/api/notes", (req,res) => {
-  const subjectId = req.query.subject_id;
-  const rows = subjectId
-    ? db.prepare(`SELECT n.*, s.name subject, c.title chapter
-                  FROM notes n JOIN subjects s ON s.id=n.subject_id
-                  LEFT JOIN chapters c ON c.id=n.chapter_id
-                  WHERE n.subject_id=? ORDER BY n.id DESC`).all(subjectId)
-    : db.prepare(`SELECT n.*, s.name subject, c.title chapter
-                  FROM notes n JOIN subjects s ON s.id=n.subject_id
-                  LEFT JOIN chapters c ON c.id=n.chapter_id
-                  ORDER BY n.id DESC`).all();
-  res.json(rows);
+// 🔐 DELETE study (Admin only)
+app.delete('/api/studies/:id', async (req, res) => {
+    try {
+        const { password } = req.body;
+        
+        if (password !== process.env.ADMIN_PASSWORD) {
+            return res.status(401).json({ 
+                success: false, 
+                message: '❌ Invalid admin password!' 
+            });
+        }
+
+        const study = await Study.findByIdAndDelete(req.params.id);
+        if (!study) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Study not found' 
+            });
+        }
+
+        res.json({ 
+            success: true, 
+            message: '✅ Study deleted successfully!' 
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
-app.get("/api/questions", (req,res) => {
-  const subjectId = req.query.subject_id;
-  const rows = subjectId
-    ? db.prepare("SELECT id,subject_id,question,option_a,option_b,option_c,option_d FROM questions WHERE subject_id=? ORDER BY id").all(subjectId)
-    : db.prepare("SELECT id,subject_id,question,option_a,option_b,option_c,option_d FROM questions ORDER BY id").all();
-  res.json(rows);
+// 🤖 AI Chat endpoint (Gemini API)
+app.post('/api/ai/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        
+        if (!message) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Message is required' 
+            });
+        }
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.GEMINI_API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `You are Hassan AI, a friendly and knowledgeable study assistant for students. 
+                            Answer this question in a helpful, clear, and encouraging way: ${message}`
+                        }]
+                    }]
+                })
+            }
+        );
+
+        const data = await response.json();
+        
+        let reply = 'Sorry, I couldn\'t process that. Please try again.';
+        if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            reply = data.candidates[0].content.parts[0].text;
+        }
+
+        res.json({ 
+            success: true, 
+            message: reply 
+        });
+
+    } catch (error) {
+        console.error('AI Error:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'AI service temporarily unavailable. Please try again later.' 
+        });
+    }
 });
 
-app.post("/api/quizzes/submit", auth, (req,res) => {
-  const { answers=[] } = req.body;
-  if (!Array.isArray(answers)) return res.status(400).json({error:"Invalid answers"});
-  let score = 0;
-  for (const item of answers) {
-    const q = db.prepare("SELECT answer FROM questions WHERE id=?").get(item.question_id);
-    if (q && Number(item.answer) === q.answer) score++;
-  }
-  db.prepare("INSERT INTO quiz_results(user_id,score,total) VALUES(?,?,?)")
-    .run(req.user.id, score, answers.length);
-  res.json({ score, total: answers.length });
+// ============================================================
+// SERVE FRONTEND
+// ============================================================
+app.use(express.static('public'));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get("/api/progress", auth, (req,res) => {
-  const quiz = db.prepare("SELECT COUNT(*) attempts, COALESCE(MAX(CASE WHEN total>0 THEN ROUND(score*100.0/total) ELSE 0 END),0) best FROM quiz_results WHERE user_id=?").get(req.user.id);
-  const progress = db.prepare("SELECT * FROM progress WHERE user_id=? ORDER BY updated_at DESC").all(req.user.id);
-  res.json({ quiz, progress });
+// ============================================================
+// START SERVER
+// ============================================================
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`📚 Study App ready!`);
 });
-
-app.post("/api/progress", auth, (req,res) => {
-  const { subject_id, percent } = req.body;
-  const p = Math.max(0, Math.min(100, Number(percent)||0));
-  db.prepare(`INSERT INTO progress(user_id,subject_id,percent,updated_at)
-              VALUES(?,?,?,datetime('now'))
-              ON CONFLICT(user_id,subject_id)
-              DO UPDATE SET percent=excluded.percent,updated_at=datetime('now')`)
-    .run(req.user.id, subject_id, p);
-  res.json({ok:true});
-});
-
-app.post("/api/admin/notes", auth, admin, (req,res) => {
-  const { subject_id, chapter_id, title, content } = req.body;
-  if (!subject_id || !title || !content) return res.status(400).json({error:"Missing fields"});
-  const r = db.prepare("INSERT INTO notes(subject_id,chapter_id,title,content) VALUES(?,?,?,?)")
-    .run(subject_id, chapter_id || null, title, content);
-  res.json({id:r.lastInsertRowid});
-});
-
-app.post("/api/admin/questions", auth, admin, (req,res) => {
-  const { subject_id, question, options, answer } = req.body;
-  if (!subject_id || !question || !Array.isArray(options) || options.length !== 4)
-    return res.status(400).json({error:"Question needs four options"});
-  const r = db.prepare(`INSERT INTO questions(subject_id,question,option_a,option_b,option_c,option_d,answer)
-                        VALUES(?,?,?,?,?,?,?)`)
-    .run(subject_id, question, ...options, Number(answer));
-  res.json({id:r.lastInsertRowid});
-});
-
-app.get("*", (req,res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-app.listen(PORT, ()=>console.log(`IX Study Hub running at http://localhost:${PORT}`));
