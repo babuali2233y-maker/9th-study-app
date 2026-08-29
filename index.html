@@ -660,11 +660,11 @@ body {
         <div class="logo-mark">🤖</div>
         <h1>What are we building today?</h1>
         <p>Ask a coding question, paste an error, or describe a problem.</p>
-        <div class="suggestions" id="suggestions">
-          <button class="suggestion-chip" data-text="Debug this error and explain the fix: ">🐛 Debug an error</button>
-          <button class="suggestion-chip" data-text="Review this code and suggest improvements: ">📝 Review my code</button>
-          <button class="suggestion-chip" data-text="Explain how this works, step by step: ">📖 Explain a concept</button>
-          <button class="suggestion-chip" data-text="Write a function that ">✏️ Write new code</button>
+        <select id="modelSelect" class="mono">
+  <option value="gemini-1.5-flash">⚡ Gemini 1.5 Flash — fast, best default</option>
+  <option value="gemini-1.5-pro">🚀 Gemini 1.5 Pro — more capable, slower</option>
+  <option value="gemini-1.0-pro">💨 Gemini 1.0 Pro — stable</option>
+</select>
         </div>
       </div>
     </div>
