@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,17 +15,21 @@
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
-      <div class="brand">CONSOLE<span>_</span></div>
+      <div class="brand"><span>🤖</span>CONSOLE</div>
       <button class="icon-btn" id="closeSidebar" aria-label="Close">✕</button>
     </div>
  
-    <button class="btn-new full" id="newChatBtn">+ New chat</button>
+    <button class="btn-new full" id="newChatBtn">
+      <span class="btn-icon">+</span> New chat
+    </button>
  
-    <div class="sb-section-label">History</div>
+    <div class="sb-section-label">Chat history</div>
     <div id="chatList" class="chat-list"></div>
  
     <div class="sb-bottom">
-      <button class="toggle-link" id="settingsBtn">⚙ Settings</button>
+      <button class="settings-btn full" id="settingsBtn">
+        <span class="btn-icon">⚙</span> Settings
+      </button>
     </div>
   </aside>
  
@@ -34,9 +39,9 @@
       <button class="icon-btn only-mobile" id="openSidebar" aria-label="Menu">☰</button>
       <div class="model-select-wrap">
         <select id="modelSelect" class="mono">
-          <option value="claude-sonnet-5">Claude Sonnet 5 — balanced, best for coding</option>
-          <option value="claude-opus-5">Claude Opus 5 — most capable, slower</option>
-          <option value="claude-haiku-4-5-20251001">Claude Haiku 4.5 — fastest</option>
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash — fast, best default</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro — more capable, slower</option>
+          <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Preview) — newest, most capable</option>
         </select>
       </div>
       <div class="status mono" id="statusDot">● not connected</div>
@@ -44,9 +49,15 @@
  
     <div class="thread" id="thread">
       <div class="empty-state" id="emptyState">
-        <div class="eyebrow mono">SYSTEM READY</div>
-        <h1>What are we building?</h1>
-        <p>Ask a coding question, paste an error, or describe a problem. This runs on Claude — set your API key in Settings first.</p>
+        <div class="logo-mark">🤖</div>
+        <h1>What are we building today?</h1>
+        <p>Ask a coding question, paste an error, or describe a problem.</p>
+        <div class="suggestions" id="suggestions">
+          <button class="suggestion-chip" data-text="Debug this error and explain the fix: ">Debug an error</button>
+          <button class="suggestion-chip" data-text="Review this code and suggest improvements: ">Review my code</button>
+          <button class="suggestion-chip" data-text="Explain how this works, step by step: ">Explain a concept</button>
+          <button class="suggestion-chip" data-text="Write a function that ">Write new code</button>
+        </div>
       </div>
     </div>
  
@@ -65,9 +76,13 @@
     <div class="eyebrow mono">Settings</div>
     <h2>Connect your API key</h2>
  
-    <label for="apiKeyInput">Anthropic API key</label>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
-    <div class="hint">Get one at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Anthropic's API.</div>
+    <label for="apiKeyInput">Google AI Studio (Gemini) API key</label>
+    <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
+    <div class="hint">Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Google's API.</div>
+ 
+    <label for="dailyLimitInput">Daily message limit</label>
+    <input type="text" inputmode="numeric" id="dailyLimitInput" placeholder="e.g. 30 (leave blank for no limit)">
+    <div class="hint">Jitni bhi limit yahan daalein, us se zyada messages aaj ke din nahi bhej sakenge — app khud rok degi. Limit har raat 12 baje reset ho jati hai.</div>
  
     <label for="systemPromptInput">System prompt (assistant's persona / instructions)</label>
     <textarea id="systemPromptInput" rows="5"></textarea>
@@ -85,4 +100,3 @@
 <script src="app.js"></script>
 </body>
 </html>
- 
