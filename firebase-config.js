@@ -1,13 +1,15 @@
 // ============================================================
-// FIREBASE CONFIG — ye apne Firebase project se fill karein
+// FIREBASE CONFIG — apne Firebase project se fill karein
 // ============================================================
-// 1. https://console.firebase.google.com pe jaake FREE project banayein
-// 2. Project Settings > General > "Your apps" > Web app (</>) add karein
-// 3. Wahan se ye config object copy karke neeche paste kar dein
-// 4. Authentication > Sign-in method > "Email/Password" ON karein
-// 5. Authentication > Users > khud ko ek admin user (email+password) add karein
-// 6. Firestore Database > Create database (production mode)
-// 7. Firestore > Rules mein neeche di gayi rules paste karein (README.md mein hain)
+// Agar aapne pehle Suno project ke liye Firebase project banaya tha,
+// wahi config yahan bhi paste kar sakte hain (same project reuse karna theek hai).
+// Nahi to naya project banayein: https://console.firebase.google.com
+//
+// 1. Project Settings > General > "Your apps" > Web app (</>) se config lein
+// 2. Authentication > Sign-in method > "Email/Password" ON karein
+// 3. Authentication > Users > apna admin email+password add karein
+// 4. Firestore Database > Create database (agar pehle se nahi bana)
+// 5. Firestore > Rules mein README.md ki rules paste karein
 
 const firebaseConfig = {
   apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
