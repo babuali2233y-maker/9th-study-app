@@ -1,23 +1,24 @@
 // ============================================================
 // CONSOLE — AI coding/problem-solving assistant
-// Backend: Firebase (Auth + Firestore) stores your instructions,
-// settings, and chat history. Calls Gemini (Google AI Studio) directly.
+// No external backend server — everything lives in DB (database.js),
+// which is backed by this browser's localStorage. Calls Gemini
+// (Google AI Studio) directly from the browser.
 // ============================================================
 
-const DEFAULT_SYSTEM_PROMPT =
+const ADMIN_PASSWORD = "Pubg Mere Jan";
+
+const DEFAULT_ADMIN_SCRIPT =
   "You are an expert coding and problem-solving assistant. Give direct, correct, " +
   "well-explained answers. When writing code, use clear naming and add comments " +
-  "only where they help. When debugging, ask for the minimum info you need, then " +
-  "give a concrete fix. Be concise but complete — no filler.";
+  "only where they help. Be concise but complete — no filler.";
 
 const els = {
   loginScreen: document.getElementById('loginScreen'),
   loginForm: document.getElementById('loginForm'),
-  loginEmail: document.getElementById('loginEmail'),
   loginPassword: document.getElementById('loginPassword'),
   loginError: document.getElementById('loginError'),
   appRoot: document.getElementById('appRoot'),
-  signOutBtn: document.getElementById('signOutBtn'),
+  lockBtn: document.getElementById('lockBtn'),
 
   thread: document.getElementById('thread'),
   emptyState: document.getElementById('emptyState'),
@@ -31,150 +32,88 @@ const els = {
   sidebar: document.getElementById('sidebar'),
   openSidebar: document.getElementById('openSidebar'),
   closeSidebar: document.getElementById('closeSidebar'),
+
+  adminScriptBtn: document.getElementById('adminScriptBtn'),
+  adminScriptModal: document.getElementById('adminScriptModal'),
+  adminScriptInput: document.getElementById('adminScriptInput'),
+  saveAdminScriptBtn: document.getElementById('saveAdminScriptBtn'),
+  closeAdminScriptBtn: document.getElementById('closeAdminScriptBtn'),
+
   settingsBtn: document.getElementById('settingsBtn'),
   settingsModal: document.getElementById('settingsModal'),
   apiKeyInput: document.getElementById('apiKeyInput'),
   dailyLimitInput: document.getElementById('dailyLimitInput'),
-  systemPromptInput: document.getElementById('systemPromptInput'),
   saveSettingsBtn: document.getElementById('saveSettingsBtn'),
   closeSettingsBtn: document.getElementById('closeSettingsBtn'),
+  exportDbBtn: document.getElementById('exportDbBtn'),
+  importDbBtn: document.getElementById('importDbBtn'),
+  importDbFile: document.getElementById('importDbFile'),
 };
 
 marked.setOptions({ breaks: true });
 
-// ---------- State ----------
-// API key stays LOCAL ONLY (per-device) — never sent to the backend, for safety.
-let apiKey = (localStorage.getItem('console_api_key') || '').replace(/[^\x20-\x7E]/g, '');
-
-// These now live in Firestore (backend) so they persist across devices:
-let systemPrompt = DEFAULT_SYSTEM_PROMPT;
-let dailyLimit = '';
-let conversations = [];
 let activeId = null;
-let usedToday = 0;
-
-let uid = null;
-let convosUnsub = null;
 
 // ============================================================
-// AUTH
+// PASSWORD GATE
 // ============================================================
-els.loginForm.addEventListener('submit', async (e) => {
+els.loginForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  els.loginError.textContent = '';
-  try {
-    await auth.signInWithEmailAndPassword(els.loginEmail.value.trim(), els.loginPassword.value);
-  } catch (err) {
-    els.loginError.textContent = 'Sign in nahi hua — email/password check karein.';
-  }
-});
-
-els.signOutBtn.onclick = () => auth.signOut();
-
-auth.onAuthStateChanged(async (user) => {
-  if (user) {
-    uid = user.uid;
-    els.loginScreen.style.display = 'none';
-    els.appRoot.style.display = 'flex';
-    await loadUserSettings();
-    listenToConversations();
-    await loadUsageToday();
-    updateStatus();
-    if (!apiKey) setTimeout(openSettings, 400);
+  if (els.loginPassword.value === ADMIN_PASSWORD) {
+    sessionStorage.setItem('console_unlocked', '1');
+    unlockApp();
   } else {
-    uid = null;
-    if (convosUnsub) convosUnsub();
-    els.loginScreen.style.display = 'flex';
-    els.appRoot.style.display = 'none';
+    els.loginError.textContent = 'Galat password.';
+    els.loginPassword.value = '';
   }
 });
 
-// ============================================================
-// FIRESTORE — user settings (system prompt + daily limit)
-// ============================================================
-async function loadUserSettings() {
-  const doc = await db.collection('users').doc(uid).get();
-  const data = doc.exists ? doc.data() : {};
-  systemPrompt = data.systemPrompt || DEFAULT_SYSTEM_PROMPT;
-  dailyLimit = data.dailyLimit || '';
+els.lockBtn.onclick = () => {
+  sessionStorage.removeItem('console_unlocked');
+  location.reload();
+};
+
+function unlockApp() {
+  els.loginScreen.style.display = 'none';
+  els.appRoot.style.display = 'flex';
+  init();
 }
 
-async function saveUserSettings() {
-  await db.collection('users').doc(uid).set({ systemPrompt, dailyLimit }, { merge: true });
+if (sessionStorage.getItem('console_unlocked') === '1') {
+  unlockApp();
 }
 
 // ============================================================
-// FIRESTORE — conversations (live sync across devices)
+// INIT
 // ============================================================
-function listenToConversations() {
-  convosUnsub = db.collection('users').doc(uid).collection('conversations')
-    .orderBy('updatedAt', 'desc')
-    .onSnapshot((snap) => {
-      conversations = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (!activeId && conversations.length > 0) activeId = conversations[0].id;
-      renderSidebar();
-      renderThread();
-    }, (err) => {
-      console.error(err);
-    });
+function init() {
+  const convos = DB.getConversations();
+  if (convos.length > 0) activeId = convos[0].id;
+  renderSidebar();
+  renderThread();
+  updateStatus();
+  if (!DB.get('apiKey')) setTimeout(openSettings, 400);
 }
 
+// ============================================================
+// CONVERSATIONS (stored in DB)
+// ============================================================
 function getActive() {
-  return conversations.find(c => c.id === activeId);
+  return DB.getConversations().find(c => c.id === activeId);
 }
 
-async function newConversation() {
-  const ref = await db.collection('users').doc(uid).collection('conversations').add({
-    title: 'New chat',
-    messages: [],
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-  activeId = ref.id;
+function newConversation() {
+  const convo = { id: 'c_' + Date.now(), title: 'New chat', messages: [] };
+  DB.saveConversation(convo);
+  activeId = convo.id;
+  renderSidebar();
+  renderThread();
   els.sidebar.classList.remove('open');
 }
 
-async function saveConversation(convo) {
-  await db.collection('users').doc(uid).collection('conversations').doc(convo.id).set({
-    title: convo.title,
-    messages: convo.messages,
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-}
-
-async function deleteConversation(id) {
-  await db.collection('users').doc(uid).collection('conversations').doc(id).delete();
-  if (activeId === id) activeId = conversations.find(c => c.id !== id)?.id || null;
-}
-
-// ============================================================
-// FIRESTORE — daily usage (true cross-device daily cap)
-// ============================================================
-function todayId() {
-  return new Date().toISOString().slice(0, 10); // e.g. 2026-08-30
-}
-
-async function loadUsageToday() {
-  const doc = await db.collection('users').doc(uid).collection('usage').doc(todayId()).get();
-  usedToday = doc.exists ? (doc.data().count || 0) : 0;
-}
-
-async function incrementUsedToday() {
-  const ref = db.collection('users').doc(uid).collection('usage').doc(todayId());
-  await ref.set({ count: firebase.firestore.FieldValue.increment(1) }, { merge: true });
-  usedToday += 1;
-}
-
-function limitReached() {
-  if (!dailyLimit) return false;
-  return usedToday >= parseInt(dailyLimit, 10);
-}
-
-// ============================================================
-// RENDERING
-// ============================================================
 function renderSidebar() {
   els.chatList.innerHTML = '';
-  conversations.forEach(c => {
+  DB.getConversations().forEach(c => {
     const item = document.createElement('div');
     item.className = 'chat-item' + (c.id === activeId ? ' active' : '');
     item.innerHTML = `<span>${escapeHtml(c.title)}</span><span class="del mono">✕</span>`;
@@ -186,7 +125,13 @@ function renderSidebar() {
     };
     item.querySelector('.del').onclick = (e) => {
       e.stopPropagation();
-      deleteConversation(c.id);
+      DB.deleteConversation(c.id);
+      if (activeId === c.id) {
+        const remaining = DB.getConversations();
+        activeId = remaining[0]?.id || null;
+      }
+      renderSidebar();
+      renderThread();
     };
     els.chatList.appendChild(item);
   });
@@ -251,28 +196,29 @@ els.form.addEventListener('submit', async (e) => {
   const text = els.input.value.trim();
   if (!text) return;
 
+  const apiKey = DB.get('apiKey');
   if (!apiKey) {
     openSettings();
     return;
   }
 
-  if (limitReached()) {
+  const dailyLimit = DB.get('dailyLimit');
+  if (dailyLimit && DB.getUsageToday() >= parseInt(dailyLimit, 10)) {
     alert(`Aaj ka limit (${dailyLimit} messages) khatam ho chuka hai. Kal phir se use kar sakte hain, ya Settings mein limit badha lein.`);
     return;
   }
 
   let convo = getActive();
   if (!convo) {
-    await newConversation();
-    convo = { id: activeId, title: 'New chat', messages: [] };
-    conversations.unshift(convo);
+    newConversation();
+    convo = getActive();
   }
 
   convo.messages.push({ role: 'user', content: text });
   if (convo.title === 'New chat') convo.title = text.slice(0, 40);
+  DB.saveConversation(convo);
   renderSidebar();
   renderThread();
-  await saveConversation(convo);
 
   els.input.value = '';
   autoGrow();
@@ -288,8 +234,8 @@ els.form.addEventListener('submit', async (e) => {
   try {
     const reply = await callGemini(convo.messages);
     convo.messages.push({ role: 'assistant', content: reply });
-    await saveConversation(convo);
-    await incrementUsedToday();
+    DB.saveConversation(convo);
+    DB.incrementUsageToday();
     renderThread();
     updateStatus();
   } catch (err) {
@@ -312,6 +258,8 @@ function autoGrow() {
 }
 
 async function callGemini(messages) {
+  const apiKey = DB.get('apiKey');
+  const adminScript = DB.get('adminScript') || DEFAULT_ADMIN_SCRIPT;
   const model = els.modelSelect.value;
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
@@ -330,7 +278,7 @@ async function callGemini(messages) {
     },
     body: JSON.stringify({
       contents,
-      systemInstruction: { parts: [{ text: systemPrompt }] },
+      systemInstruction: { parts: [{ text: adminScript }] },
       generationConfig: { maxOutputTokens: 4096 }
     })
   });
@@ -348,12 +296,27 @@ async function callGemini(messages) {
 }
 
 // ============================================================
-// SETTINGS (systemPrompt + dailyLimit go to Firestore; apiKey stays local)
+// ADMIN SCRIPT (the "teach it what to do" panel)
+// ============================================================
+els.adminScriptBtn.onclick = () => {
+  els.adminScriptInput.value = DB.get('adminScript') || DEFAULT_ADMIN_SCRIPT;
+  els.adminScriptModal.style.display = 'flex';
+};
+els.closeAdminScriptBtn.onclick = () => els.adminScriptModal.style.display = 'none';
+els.adminScriptModal.addEventListener('click', (e) => { if (e.target === els.adminScriptModal) els.adminScriptModal.style.display = 'none'; });
+
+els.saveAdminScriptBtn.onclick = () => {
+  const val = els.adminScriptInput.value.trim() || DEFAULT_ADMIN_SCRIPT;
+  DB.set('adminScript', val);
+  els.adminScriptModal.style.display = 'none';
+};
+
+// ============================================================
+// SETTINGS
 // ============================================================
 function openSettings() {
-  els.apiKeyInput.value = apiKey;
-  els.dailyLimitInput.value = dailyLimit;
-  els.systemPromptInput.value = systemPrompt;
+  els.apiKeyInput.value = DB.get('apiKey') || '';
+  els.dailyLimitInput.value = DB.get('dailyLimit') || '';
   els.settingsModal.style.display = 'flex';
 }
 function closeSettings() { els.settingsModal.style.display = 'none'; }
@@ -362,21 +325,20 @@ els.settingsBtn.onclick = openSettings;
 els.closeSettingsBtn.onclick = closeSettings;
 els.settingsModal.addEventListener('click', (e) => { if (e.target === els.settingsModal) closeSettings(); });
 
-els.saveSettingsBtn.onclick = async () => {
+els.saveSettingsBtn.onclick = () => {
   // Strip anything outside printable ASCII — invisible/unicode chars (often
   // injected by browser autofill) break the fetch 'headers' object.
-  apiKey = els.apiKeyInput.value.trim().replace(/[^\x20-\x7E]/g, '');
-  dailyLimit = els.dailyLimitInput.value.trim().replace(/[^0-9]/g, '');
-  systemPrompt = els.systemPromptInput.value.trim() || DEFAULT_SYSTEM_PROMPT;
-
-  localStorage.setItem('console_api_key', apiKey); // local only, on purpose
-  await saveUserSettings(); // systemPrompt + dailyLimit → backend
-
+  const cleanKey = els.apiKeyInput.value.trim().replace(/[^\x20-\x7E]/g, '');
+  const cleanLimit = els.dailyLimitInput.value.trim().replace(/[^0-9]/g, '');
+  DB.set('apiKey', cleanKey);
+  DB.set('dailyLimit', cleanLimit);
   updateStatus();
   closeSettings();
 };
 
 function updateStatus() {
+  const apiKey = DB.get('apiKey');
+  const dailyLimit = DB.get('dailyLimit');
   if (!apiKey) {
     els.statusDot.textContent = '● not connected';
     els.statusDot.classList.remove('ok');
@@ -384,11 +346,27 @@ function updateStatus() {
   }
   els.statusDot.classList.add('ok');
   if (dailyLimit) {
-    els.statusDot.textContent = `● ${usedToday}/${dailyLimit} today`;
+    els.statusDot.textContent = `● ${DB.getUsageToday()}/${dailyLimit} today`;
   } else {
     els.statusDot.textContent = '● connected';
   }
 }
+
+// ---------- Database export/import ----------
+els.exportDbBtn.onclick = () => DB.exportToFile();
+els.importDbBtn.onclick = () => els.importDbFile.click();
+els.importDbFile.addEventListener('change', () => {
+  const file = els.importDbFile.files[0];
+  if (!file) return;
+  DB.importFromFile(file, (ok) => {
+    if (ok) {
+      alert('Database import ho gaya.');
+      location.reload();
+    } else {
+      alert('Ye file valid database.json nahi hai.');
+    }
+  });
+});
 
 // ---------- Sidebar mobile toggle ----------
 els.openSidebar.onclick = () => els.sidebar.classList.add('open');
@@ -403,5 +381,5 @@ document.querySelectorAll('.suggestion-chip').forEach(chip => {
   });
 });
 
-// ---------- Init ----------
+// ---------- New chat ----------
 els.newChatBtn.onclick = newConversation;
