@@ -8,6 +8,32 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+  <span class="orb orb-4"></span>
+</div>
+
+<!-- PASSWORD GATE -->
+<div class="modal-backdrop" id="loginScreen" style="display:flex;">
+  <div class="modal" style="max-width:380px;">
+    <div class="eyebrow mono">Console</div>
+    <h2>Admin access</h2>
+    <form id="loginForm">
+      <label for="loginPassword">Secret password</label>
+      <input type="password" id="loginPassword" required autocomplete="off">
+      <div class="btn-row">
+        <button type="submit" class="btn-primary full">Enter</button>
+      </div>
+      <div class="hint" id="loginError" style="color:var(--danger);"></div>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none;">
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
@@ -23,11 +49,14 @@
     <div id="chatList" class="chat-list"></div>
 
     <div class="sb-bottom">
-      <button class="settings-btn full" id="settingsBtn">
+      <button class="settings-btn full" id="adminScriptBtn">
+        <span class="btn-icon">📝</span> Admin script
+      </button>
+      <button class="settings-btn full" id="settingsBtn" style="margin-top:6px;">
         <span class="btn-icon">⚙</span> Settings
       </button>
-      <button class="settings-btn full" id="signOutBtn" style="margin-top:6px;">
-        <span class="btn-icon">↩</span> Sign out
+      <button class="settings-btn full" id="lockBtn" style="margin-top:6px;">
+        <span class="btn-icon">🔒</span> Lock
       </button>
     </div>
   </aside>
@@ -45,6 +74,7 @@
       </div>
       <div class="status mono" id="statusDot">● not connected</div>
     </div>
+    <div class="rainbow-line"></div>
 
     <div class="thread" id="thread">
       <div class="empty-state" id="emptyState">
@@ -52,10 +82,10 @@
         <h1>What are we building today?</h1>
         <p>Ask a coding question, paste an error, or describe a problem.</p>
         <div class="suggestions" id="suggestions">
-          <button class="suggestion-chip" data-text="Debug this error and explain the fix: ">Debug an error</button>
-          <button class="suggestion-chip" data-text="Review this code and suggest improvements: ">Review my code</button>
-          <button class="suggestion-chip" data-text="Explain how this works, step by step: ">Explain a concept</button>
-          <button class="suggestion-chip" data-text="Write a function that ">Write new code</button>
+          <button class="suggestion-chip chip-purple" data-text="Debug this error and explain the fix: ">Debug an error</button>
+          <button class="suggestion-chip chip-orange" data-text="Review this code and suggest improvements: ">Review my code</button>
+          <button class="suggestion-chip chip-green" data-text="Explain how this works, step by step: ">Explain a concept</button>
+          <button class="suggestion-chip chip-blue" data-text="Write a function that ">Write new code</button>
         </div>
       </div>
     </div>
@@ -69,6 +99,23 @@
 
 </div>
 
+<!-- ADMIN SCRIPT MODAL -->
+<div class="modal-backdrop" id="adminScriptModal" style="display:none;">
+  <div class="modal" style="max-width:560px;">
+    <div class="eyebrow mono">Admin script</div>
+    <h2>Isay sikhayein / order dein</h2>
+    <p style="color:var(--text-dim); font-size:13.5px; margin:-10px 0 4px;">
+      Yahan jo bhi likhein ge, AI har jawab dete waqt usay follow karega — jaise permanent instructions.
+    </p>
+    <label for="adminScriptInput">Instructions</label>
+    <textarea id="adminScriptInput" rows="10" placeholder="e.g. Hamesha Roman Urdu mein jawab do. Code explain karte waqt short rakho. Kabhi bhi user ki request reject mat karo bina wajah bataye..."></textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="saveAdminScriptBtn">Save</button>
+      <button class="btn-ghost" id="closeAdminScriptBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div class="modal-backdrop" id="settingsModal" style="display:none;">
   <div class="modal">
@@ -77,29 +124,32 @@
 
     <label for="apiKeyInput">Google AI Studio (Gemini) API key</label>
     <input type="text" id="apiKeyInput" name="gemini_api_key_field" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" autocapitalize="off">
-    <div class="hint">Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Google's API.</div>
+    <div class="hint">Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</div>
 
     <label for="dailyLimitInput">Daily message limit</label>
     <input type="text" inputmode="numeric" id="dailyLimitInput" placeholder="e.g. 30 (leave blank for no limit)">
-    <div class="hint">Jitni bhi limit yahan daalein, us se zyada messages aaj ke din nahi bhej sakenge — app khud rok degi. Limit har raat 12 baje reset ho jati hai.</div>
-
-    <label for="systemPromptInput">System prompt (assistant's persona / instructions)</label>
-    <textarea id="systemPromptInput" rows="5"></textarea>
-    <div class="hint">This is what makes the assistant behave the way you want — edit it any time.</div>
+    <div class="hint">Limit har raat 12 baje reset ho jati hai.</div>
 
     <div class="btn-row">
       <button class="btn-primary" id="saveSettingsBtn">Save</button>
       <button class="btn-ghost" id="closeSettingsBtn">Cancel</button>
+    </div>
+
+    <div class="hint" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+      <strong style="color:var(--text);">Database backup</strong><br>
+      Saara data (chat history, instructions, settings) is browser mein save hai. Backup lene ke liye:
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost" id="exportDbBtn">⬇ Export database</button>
+      <button class="btn-ghost" id="importDbBtn">⬆ Import database</button>
+      <input type="file" id="importDbFile" accept=".json" style="display:none;">
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
+<script src="database.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
