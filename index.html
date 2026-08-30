@@ -8,30 +8,52 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
- 
-<div class="app">
- 
+
+<!-- LOGIN SCREEN -->
+<div class="modal-backdrop" id="loginScreen" style="display:flex;">
+  <div class="modal" style="max-width:400px;">
+    <div class="eyebrow mono">Console</div>
+    <h2>Sign in</h2>
+    <p style="color:var(--text-dim); font-size:13.5px; margin:-10px 0 4px;">Aapki instructions aur chat history yahan se save/load hoti hain.</p>
+    <form id="loginForm">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" required autocomplete="username">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" required autocomplete="current-password">
+      <div class="btn-row">
+        <button type="submit" class="btn-primary full">Sign in</button>
+      </div>
+      <div class="hint" id="loginError" style="color:var(--danger);"></div>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none;">
+
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
       <div class="brand"><span>🤖</span>CONSOLE</div>
       <button class="icon-btn" id="closeSidebar" aria-label="Close">✕</button>
     </div>
- 
+
     <button class="btn-new full" id="newChatBtn">
       <span class="btn-icon">+</span> New chat
     </button>
- 
+
     <div class="sb-section-label">Chat history</div>
     <div id="chatList" class="chat-list"></div>
- 
+
     <div class="sb-bottom">
       <button class="settings-btn full" id="settingsBtn">
         <span class="btn-icon">⚙</span> Settings
       </button>
+      <button class="settings-btn full" id="signOutBtn" style="margin-top:6px;">
+        <span class="btn-icon">↩</span> Sign out
+      </button>
     </div>
   </aside>
- 
+
   <!-- MAIN -->
   <main class="main">
     <div class="topbar">
@@ -45,7 +67,7 @@
       </div>
       <div class="status mono" id="statusDot">● not connected</div>
     </div>
- 
+
     <div class="thread" id="thread">
       <div class="empty-state" id="emptyState">
         <div class="logo-mark">🤖</div>
@@ -59,43 +81,47 @@
         </div>
       </div>
     </div>
- 
+
     <form class="composer" id="composerForm">
       <textarea id="input" class="mono" placeholder="Describe the problem, paste code, or ask anything…" rows="1"></textarea>
       <button type="submit" class="btn-send" id="sendBtn">Send</button>
     </form>
     <div class="composer-hint mono">Shift+Enter for newline · Enter to send</div>
   </main>
- 
+
 </div>
- 
+
 <!-- SETTINGS MODAL -->
 <div class="modal-backdrop" id="settingsModal" style="display:none;">
   <div class="modal">
     <div class="eyebrow mono">Settings</div>
     <h2>Connect your API key</h2>
- 
+
     <label for="apiKeyInput">Google AI Studio (Gemini) API key</label>
-    <input type="password" id="apiKeyInput" placeholder="AIzaSy...">
+    <input type="text" id="apiKeyInput" name="gemini_api_key_field" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" autocapitalize="off">
     <div class="hint">Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>. Saved only in this browser's localStorage — never written into any file or sent anywhere except Google's API.</div>
- 
+
     <label for="dailyLimitInput">Daily message limit</label>
     <input type="text" inputmode="numeric" id="dailyLimitInput" placeholder="e.g. 30 (leave blank for no limit)">
     <div class="hint">Jitni bhi limit yahan daalein, us se zyada messages aaj ke din nahi bhej sakenge — app khud rok degi. Limit har raat 12 baje reset ho jati hai.</div>
- 
+
     <label for="systemPromptInput">System prompt (assistant's persona / instructions)</label>
     <textarea id="systemPromptInput" rows="5"></textarea>
     <div class="hint">This is what makes the assistant behave the way you want — edit it any time.</div>
- 
+
     <div class="btn-row">
       <button class="btn-primary" id="saveSettingsBtn">Save</button>
       <button class="btn-ghost" id="closeSettingsBtn">Cancel</button>
     </div>
   </div>
 </div>
- 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
