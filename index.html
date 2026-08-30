@@ -8,28 +8,6 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<!-- LOGIN SCREEN -->
-<div class="modal-backdrop" id="loginScreen" style="display:flex;">
-  <div class="modal" style="max-width:400px;">
-    <div class="eyebrow mono">Console</div>
-    <h2>Sign in</h2>
-    <p style="color:var(--text-dim); font-size:13.5px; margin:-10px 0 4px;">Aapki instructions aur chat history yahan se save/load hoti hain.</p>
-    <form id="loginForm">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" required autocomplete="username">
-      <label for="loginPassword">Password</label>
-      <input type="password" id="loginPassword" required autocomplete="current-password">
-      <div class="btn-row">
-        <button type="submit" class="btn-primary full">Sign in</button>
-      </div>
-      <div class="hint" id="loginError" style="color:var(--danger);"></div>
-    </form>
-  </div>
-</div>
-
-<div class="app" id="appRoot" style="display:none;">
-
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="sb-top">
