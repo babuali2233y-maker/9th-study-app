@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Console — AI Assistant</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="style.css">
+
+<style>
+:root{
+  --bg:#070812;--panel:rgba(15,18,34,.72);--panel2:rgba(21,25,48,.82);
+  --border:rgba(255,255,255,.10);--text:#f5f7ff;--text-dim:#9da5c2;
+  --accent:#8b5cf6;--accent2:#06b6d4;--danger:#fb7185;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:
+radial-gradient(circle at 15% 10%,rgba(139,92,246,.18),transparent 28%),
+radial-gradient(circle at 85% 15%,rgba(6,182,212,.14),transparent 26%),#070812;color:var(--text)}
+body{overflow:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(to bottom,#000,transparent 85%)}
+.bg-orbs span{filter:blur(35px);opacity:.45;animation:float 9s ease-in-out infinite alternate}
+.orb-1{background:#8b5cf6!important}.orb-2{background:#06b6d4!important}.orb-3{background:#ec4899!important}.orb-4{background:#22c55e!important}
+@keyframes float{to{transform:translate(28px,-22px) scale(1.12)}}
+.app{height:100vh;display:flex;position:relative}
+.sidebar{width:285px;background:rgba(8,10,22,.82)!important;backdrop-filter:blur(24px);border-right:1px solid var(--border);box-shadow:18px 0 60px rgba(0,0,0,.25)}
+.sb-top{padding:20px 18px!important}.brand{font-weight:900;letter-spacing:2px;font-size:16px}
+.brand span{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border-radius:11px;margin-right:8px;background:linear-gradient(135deg,#8b5cf6,#06b6d4);box-shadow:0 0 28px rgba(139,92,246,.45)}
+.btn-new{border:1px solid rgba(139,92,246,.35)!important;background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(6,182,212,.12))!important;box-shadow:0 8px 30px rgba(139,92,246,.12);border-radius:14px!important}
+.chat-list{padding:8px 10px}.chat-list>*{border-radius:12px!important;transition:.2s}.chat-list>*:hover{background:rgba(139,92,246,.12)!important}
+.sb-section-label{color:#727b9c!important;font-size:11px!important;letter-spacing:1.5px;text-transform:uppercase;margin:18px 16px 6px}
+.main{background:transparent!important}
+.topbar{height:70px!important;background:rgba(8,10,22,.55)!important;backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding:0 22px!important}
+.model-select-wrap select{background:rgba(255,255,255,.055)!important;border:1px solid var(--border)!important;color:var(--text)!important;border-radius:12px!important;padding:10px 14px!important}
+.status{padding:8px 12px;border:1px solid rgba(34,197,94,.18);border-radius:999px;background:rgba(34,197,94,.06);color:#86efac!important}
+.rainbow-line{height:2px!important;background:linear-gradient(90deg,#8b5cf6,#06b6d4,#22c55e,#f59e0b,#ec4899)!important;box-shadow:0 0 18px rgba(139,92,246,.65)}
+.thread{padding:32px 18px!important}
+.empty-state{max-width:820px!important;margin:auto!important;padding-top:7vh!important}
+.logo-mark{width:82px!important;height:82px!important;display:flex!important;align-items:center;justify-content:center;margin:auto;border-radius:25px!important;background:linear-gradient(135deg,#8b5cf6,#06b6d4)!important;box-shadow:0 0 50px rgba(139,92,246,.38);font-size:40px!important;animation:pulse 2.8s ease-in-out infinite}
+@keyframes pulse{50%{transform:translateY(-5px);box-shadow:0 0 70px rgba(6,182,212,.28)}}
+.empty-state h1{font-size:clamp(30px,5vw,52px)!important;letter-spacing:-1.8px!important;margin:24px 0 10px!important;background:linear-gradient(90deg,#fff,#b8c2ff,#67e8f9);-webkit-background-clip:text;background-clip:text;color:transparent}
+.empty-state p{color:#9da5c2!important;font-size:15px}
+.suggestions{gap:12px!important}
+.suggestion-chip{border:1px solid var(--border)!important;background:rgba(255,255,255,.045)!important;border-radius:14px!important;padding:12px 16px!important;transition:.2s!important;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.suggestion-chip:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.5)!important;background:rgba(139,92,246,.10)!important;box-shadow:0 12px 30px rgba(139,92,246,.14)}
+.composer{max-width:900px!important;margin:0 auto!important;padding:10px!important;border:1px solid rgba(139,92,246,.25)!important;background:rgba(13,16,31,.78)!important;backdrop-filter:blur(20px);border-radius:20px!important;box-shadow:0 18px 55px rgba(0,0,0,.32),0 0 35px rgba(139,92,246,.08)}
+.composer textarea{background:transparent!important;border:0!important;outline:0!important;color:#fff!important;min-height:46px!important;padding:14px!important}
+.composer textarea::placeholder{color:#6f7898!important}
+.btn-send{border:0!important;border-radius:14px!important;background:linear-gradient(135deg,#8b5cf6,#06b6d4)!important;color:#fff!important;font-weight:800!important;padding:0 22px!important;box-shadow:0 8px 25px rgba(139,92,246,.28);transition:.2s}
+.btn-send:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.composer-hint{color:#626b89!important;margin-top:9px!important}
+.modal-backdrop{background:rgba(0,0,0,.68)!important;backdrop-filter:blur(10px)}
+.modal{background:linear-gradient(145deg,rgba(21,25,48,.96),rgba(10,12,25,.97))!important;border:1px solid var(--border)!important;border-radius:22px!important;box-shadow:0 30px 100px rgba(0,0,0,.55),0 0 45px rgba(139,92,246,.10)!important}
+.modal input,.modal textarea{background:rgba(255,255,255,.045)!important;border:1px solid var(--border)!important;color:#fff!important;border-radius:12px!important}
+.btn-primary{border:0!important;border-radius:12px!important;background:linear-gradient(135deg,#8b5cf6,#06b6d4)!important;box-shadow:0 8px 24px rgba(139,92,246,.22)}
+.btn-ghost,.settings-btn,.icon-btn{border-color:var(--border)!important;background:rgba(255,255,255,.035)!important;color:var(--text)!important;border-radius:11px!important}
+.eyebrow{color:#a78bfa!important;letter-spacing:2px!important}
+@media(max-width:700px){
+ .sidebar{width:280px}.topbar{padding:0 12px!important}.thread{padding:18px 10px!important}
+ .empty-state{padding-top:5vh!important}.suggestions{grid-template-columns:1fr 1fr!important}
+ .suggestion-chip{font-size:12px!important}.composer{border-radius:17px!important}
+}
+</style>
+
+
+<style id="premium-v2-upgrade">
+:root{
+  --bg:#05060d;
+  --panel:rgba(14,16,30,.72);
+  --panel2:rgba(20,23,42,.84);
+  --border:rgba(255,255,255,.10);
+  --border2:rgba(139,92,246,.28);
+  --text:#f8f9ff;
+  --text-dim:#9aa4c4;
+  --accent:#9b6cff;
+  --accent2:#22d3ee;
+  --pink:#f472b6;
+  --green:#34d399;
+}
+html,body{
+  background:
+    radial-gradient(900px 500px at 8% -10%,rgba(139,92,246,.22),transparent 60%),
+    radial-gradient(800px 500px at 105% 5%,rgba(34,211,238,.17),transparent 58%),
+    radial-gradient(700px 500px at 60% 115%,rgba(244,114,182,.10),transparent 60%),
+    #05060d!important;
+}
+body:after{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;
+  background:radial-gradient(circle at 50% 50%,transparent 0,rgba(255,255,255,.025) 1px,transparent 1.5px);
+  background-size:22px 22px;
+}
+.app{isolation:isolate}
+.sidebar{
+  width:292px!important;
+  background:linear-gradient(180deg,rgba(8,10,22,.93),rgba(7,8,18,.82))!important;
+  border-right:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:25px 0 80px rgba(0,0,0,.34)!important;
+}
+.sb-top{padding:22px 18px 18px!important}
+.brand{
+  font-size:17px!important;letter-spacing:2.5px!important;
+  display:flex;align-items:center;
+}
+.brand span{
+  width:38px!important;height:38px!important;border-radius:13px!important;
+  margin-right:10px!important;
+  background:linear-gradient(135deg,#9b6cff,#22d3ee,#f472b6)!important;
+  box-shadow:0 0 34px rgba(139,92,246,.40)!important;
+}
+.btn-new{
+  margin:0 12px;width:calc(100% - 24px)!important;
+  min-height:48px;
+  background:linear-gradient(135deg,rgba(139,92,246,.30),rgba(34,211,238,.12))!important;
+  border:1px solid rgba(167,139,250,.32)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.08),0 12px 32px rgba(91,33,182,.16)!important;
+}
+.btn-new:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.sb-section-label{margin-top:24px!important}
+.chat-list>*{margin:3px 4px!important;padding:11px 12px!important}
+.sb-bottom{padding:12px!important}
+.settings-btn{
+  min-height:43px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  transition:.22s ease!important;
+}
+.settings-btn:hover{
+  transform:translateX(3px);
+  background:rgba(139,92,246,.10)!important;
+  border-color:rgba(139,92,246,.22)!important;
+}
+.main{position:relative}
+.topbar{
+  height:76px!important;
+  background:rgba(5,7,17,.62)!important;
+  border-bottom:1px solid rgba(255,255,255,.075)!important;
+}
+.model-select-wrap select{
+  min-width:270px;
+  box-shadow:inset 0 1px rgba(255,255,255,.05),0 8px 28px rgba(0,0,0,.15);
+}
+.status{
+  box-shadow:0 0 22px rgba(34,197,94,.06),inset 0 1px rgba(255,255,255,.04);
+}
+.rainbow-line{
+  height:3px!important;
+  background:linear-gradient(90deg,#8b5cf6,#22d3ee,#34d399,#fbbf24,#f472b6,#8b5cf6)!important;
+  background-size:200% 100%!important;
+  animation:rainbowMove 5s linear infinite;
+}
+@keyframes rainbowMove{to{background-position:200% 0}}
+.thread{padding:36px 20px 26px!important}
+.empty-state{
+  max-width:920px!important;
+  padding-top:6vh!important;
+}
+.logo-mark{
+  width:94px!important;height:94px!important;border-radius:29px!important;
+  background:linear-gradient(135deg,#8b5cf6 0%,#22d3ee 52%,#f472b6 100%)!important;
+  box-shadow:0 0 65px rgba(139,92,246,.35),inset 0 1px rgba(255,255,255,.32)!important;
+  border:1px solid rgba(255,255,255,.14);
+}
+.empty-state h1{
+  font-size:clamp(34px,5.4vw,58px)!important;
+  text-shadow:0 8px 40px rgba(139,92,246,.15);
+}
+.empty-state p{font-size:15.5px!important}
+.suggestions{
+  max-width:780px;margin:28px auto!important;
+  gap:14px!important;
+}
+.suggestion-chip{
+  min-height:54px;
+  border:1px solid rgba(255,255,255,.09)!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025))!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),0 12px 30px rgba(0,0,0,.14)!important;
+}
+.suggestion-chip:active{transform:scale(.98)}
+.composer{
+  max-width:940px!important;
+  padding:9px!important;
+  border:1px solid rgba(167,139,250,.27)!important;
+  background:linear-gradient(145deg,rgba(20,22,42,.88),rgba(8,10,21,.90))!important;
+  box-shadow:0 22px 75px rgba(0,0,0,.40),0 0 45px rgba(139,92,246,.09),inset 0 1px rgba(255,255,255,.07)!important;
+}
+.composer:focus-within{
+  border-color:rgba(167,139,250,.48)!important;
+  box-shadow:0 22px 80px rgba(0,0,0,.43),0 0 48px rgba(139,92,246,.15),inset 0 1px rgba(255,255,255,.08)!important;
+}
+.composer textarea{font-size:14px!important}
+.btn-send{
+  min-width:92px;min-height:48px;
+  background:linear-gradient(135deg,#8b5cf6,#22d3ee)!important;
+  box-shadow:0 10px 30px rgba(124,58,237,.28),inset 0 1px rgba(255,255,255,.22)!important;
+}
+.composer-hint{text-align:center!important}
+.modal{
+  background:linear-gradient(145deg,rgba(24,27,50,.97),rgba(7,9,19,.98))!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  box-shadow:0 35px 120px rgba(0,0,0,.68),0 0 60px rgba(139,92,246,.12)!important;
+}
+.modal input,.modal textarea{
+  box-shadow:inset 0 1px rgba(255,255,255,.045)!important;
+}
+.btn-primary{
+  background:linear-gradient(135deg,#8b5cf6,#22d3ee)!important;
+  min-height:44px;
+}
+.icon-btn{transition:.2s!important}
+.icon-btn:hover{transform:scale(1.05);background:rgba(139,92,246,.12)!important}
+@media(max-width:700px){
+  .sidebar{width:min(88vw,310px)!important}
+  .topbar{height:64px!important}
+  .model-select-wrap select{min-width:0;max-width:190px;padding:9px 10px!important;font-size:11px}
+  .status{font-size:10px;padding:7px 9px}
+  .thread{padding:20px 10px 18px!important}
+  .empty-state{padding-top:4vh!important}
+  .logo-mark{width:76px!important;height:76px!important;font-size:34px!important}
+  .suggestions{grid-template-columns:1fr 1fr!important;margin-top:22px!important}
+  .suggestion-chip{min-height:50px!important;padding:10px 8px!important}
+  .composer{margin:0 4px!important}
+}
+</style>
+
+</head>
+<body>
+
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+  <span class="orb orb-4"></span>
+</div>
+
+<!-- PASSWORD GATE -->
+<div class="modal-backdrop" id="loginScreen" style="display:flex;">
+  <div class="modal" style="max-width:380px;">
+    <div class="eyebrow mono">Console</div>
+    <h2>Admin access</h2>
+    <form id="loginForm">
+      <label for="loginPassword">Secret password</label>
+      <input type="password" id="loginPassword" required autocomplete="off">
+      <div class="btn-row">
+        <button type="submit" class="btn-primary full">Enter</button>
+      </div>
+      <div class="hint" id="loginError" style="color:var(--danger);"></div>
+    </form>
+  </div>
+</div>
+
+<div class="app" id="appRoot" style="display:none;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-top">
+      <div class="brand"><span>🤖</span>CONSOLE</div>
+      <button class="icon-btn" id="closeSidebar" aria-label="Close">✕</button>
+    </div>
+
+    <button class="btn-new full" id="newChatBtn">
+      <span class="btn-icon">+</span> New chat
+    </button>
+
+    <div class="sb-section-label">Chat history</div>
+    <div id="chatList" class="chat-list"></div>
+
+    <div class="sb-bottom">
+      <button class="settings-btn full" id="adminScriptBtn">
+        <span class="btn-icon">📝</span> Admin script
+      </button>
+      <button class="settings-btn full" id="settingsBtn" style="margin-top:6px;">
+        <span class="btn-icon">⚙</span> Settings
+      </button>
+      <button class="settings-btn full" id="lockBtn" style="margin-top:6px;">
+        <span class="btn-icon">🔒</span> Lock
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <button class="icon-btn only-mobile" id="openSidebar" aria-label="Menu">☰</button>
+      <div class="model-select-wrap">
+        <select id="modelSelect" class="mono">
+          <option value="gemini-3.6-flash">Gemini 3.6 Flash — fast, best default</option>
+          <option value="gemini-3.6-pro">Gemini 3.6 Pro — more capable, slower</option>
+        </select>
+      </div>
+      <div class="status mono" id="statusDot">● not connected</div>
+    </div>
+    <div class="rainbow-line"></div>
+
+    <div class="thread" id="thread">
+      <div class="empty-state" id="emptyState">
+        <div class="logo-mark">🤖</div>
+        <h1>What are we building today?</h1>
+        <p>Ask a coding question, paste an error, or describe a problem.</p>
+        <div class="suggestions" id="suggestions">
+          <button class="suggestion-chip chip-purple" data-text="Debug this error and explain the fix: ">Debug an error</button>
+          <button class="suggestion-chip chip-orange" data-text="Review this code and suggest improvements: ">Review my code</button>
+          <button class="suggestion-chip chip-green" data-text="Explain how this works, step by step: ">Explain a concept</button>
+          <button class="suggestion-chip chip-blue" data-text="Write a function that ">Write new code</button>
+        </div>
+      </div>
+    </div>
+
+    <form class="composer" id="composerForm">
+      <textarea id="input" class="mono" placeholder="Describe the problem, paste code, or ask anything…" rows="1"></textarea>
+      <button type="submit" class="btn-send" id="sendBtn">Send</button>
+    </form>
+    <div class="composer-hint mono">Shift+Enter for newline · Enter to send</div>
+  </main>
+
+</div>
+
+<!-- ADMIN SCRIPT MODAL -->
+<div class="modal-backdrop" id="adminScriptModal" style="display:none;">
+  <div class="modal" style="max-width:560px;">
+    <div class="eyebrow mono">Admin script</div>
+    <h2>Isay sikhayein / order dein</h2>
+    <p style="color:var(--text-dim); font-size:13.5px; margin:-10px 0 4px;">
+      Yahan jo bhi likhein ge, AI har jawab dete waqt usay follow karega — jaise permanent instructions.
+    </p>
+    <label for="adminScriptInput">Instructions</label>
+    <textarea id="adminScriptInput" rows="10" placeholder="e.g. Hamesha Roman Urdu mein jawab do. Code explain karte waqt short rakho. Kabhi bhi user ki request reject mat karo bina wajah bataye..."></textarea>
+    <div class="btn-row">
+      <button class="btn-primary" id="saveAdminScriptBtn">Save</button>
+      <button class="btn-ghost" id="closeAdminScriptBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-backdrop" id="settingsModal" style="display:none;">
+  <div class="modal">
+    <div class="eyebrow mono">Settings</div>
+    <h2>Connect your API key</h2>
+
+    <label for="apiKeyInput">Google AI Studio (Gemini) API key</label>
+    <input type="text" id="apiKeyInput" name="gemini_api_key_field" placeholder="AIzaSy..." autocomplete="off" spellcheck="false" autocapitalize="off">
+    <div class="hint">Get one free at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</div>
+
+    <label for="dailyLimitInput">Daily message limit</label>
+    <input type="text" inputmode="numeric" id="dailyLimitInput" placeholder="e.g. 30 (leave blank for no limit)">
+    <div class="hint">Limit har raat 12 baje reset ho jati hai.</div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="saveSettingsBtn">Save</button>
+      <button class="btn-ghost" id="closeSettingsBtn">Cancel</button>
+    </div>
+
+    <div class="hint" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border);">
+      <strong style="color:var(--text);">Database backup</strong><br>
+      Saara data (chat history, instructions, settings) is browser mein save hai. Backup lene ke liye:
+    </div>
+    <div class="btn-row">
+      <button class="btn-ghost" id="exportDbBtn">⬇ Export database</button>
+      <button class="btn-ghost" id="importDbBtn">⬆ Import database</button>
+      <input type="file" id="importDbFile" accept=".json" style="display:none;">
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="database.js"></script>
+<script src="app.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  const status=document.getElementById('statusDot');
+  if(status) status.setAttribute('title','AI connection status');
+  const input=document.getElementById('input');
+  if(input){
+    input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,180)+'px';});
+  }
+});
+</script>
+
+
+<script id="premium-v2-effects">
+document.addEventListener('DOMContentLoaded',()=>{
+  document.body.classList.add('premium-v2');
+  const app=document.getElementById('appRoot');
+  if(app){
+    app.style.transition='opacity .35s ease, transform .35s ease';
+    app.style.transform='translateY(4px)';
+    requestAnimationFrame(()=>{app.style.opacity='1';app.style.transform='translateY(0)'});
+  }
+});
+</script>
+
+</body>
+</html>
