@@ -13,10 +13,10 @@ button{border:0;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:
 .sidebar{width:245px;background:#111827;color:#fff;padding:20px;position:fixed;inset:0 auto 0 0}
 .brand{font-size:21px;font-weight:800;line-height:1.3;margin-bottom:25px}
 .brand small{display:block;color:#9ca3af;font-size:12px;margin-top:5px}
-.nav button{display:block;width:100%;text-align:left;background:transparent;color:#d1d5db;margin:5px 0}
+.nav button{display:block;width:100%;text-align:left;background:transparent;color:#d1d5db;margin:5px 0;padding:11px 15px;border-radius:10px}
 .nav button.active,.nav button:hover{background:#2563eb;color:#fff}
 .main{margin-left:245px;width:calc(100% - 245px);padding:22px}
-.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
 .header h1{font-size:28px}
 .header p{color:#6b7280;margin-top:5px}
 .primary{background:#2563eb;color:#fff}.success{background:#16a34a;color:#fff}.danger{background:#dc2626;color:#fff}.muted{background:#e5e7eb;color:#111827}
@@ -29,21 +29,24 @@ button{border:0;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:
 .panel h3{margin-bottom:14px}
 input,select{width:100%;padding:11px;border:1px solid #d1d5db;border-radius:9px;background:#fff}
 label{font-size:13px;font-weight:700;color:#4b5563;display:block;margin-bottom:5px}
-.form-actions{display:flex;gap:8px;margin-top:14px}
+.form-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;min-width:760px}
 th,td{padding:12px;border-bottom:1px solid #edf0f4;text-align:left}
 th{background:#f8fafc;color:#4b5563;font-size:13px}
 .badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:12px;font-weight:700}
 .in{background:#dcfce7;color:#166534}.low{background:#fef3c7;color:#92400e}.out{background:#fee2e2;color:#991b1b}
-.actions{display:flex;gap:6px}.actions button{padding:7px 9px;font-size:12px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.actions button{padding:7px 9px;font-size:12px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.receipt{max-width:420px;margin:auto;border:1px dashed #aaa;padding:20px;background:#fff}
-.receipt h2{text-align:center}.receipt .center{text-align:center}
-.receipt table{min-width:0}.receipt th{background:#fff}
+.receipt{max-width:420px;margin:auto;border:2px solid #111;padding:20px;background:#fff;font-size:14px}
+.receipt h2{text-align:center;font-size:18px}.receipt .center{text-align:center}
+.receipt table{min-width:0;width:100%}.receipt th{background:#fff;border-bottom:1px solid #000}
+.receipt td{padding:6px 4px;border-bottom:1px dashed #ccc}
 .total{font-size:19px;font-weight:800;text-align:right;margin-top:12px}
 .empty{text-align:center;padding:25px;color:#777}
 .search{max-width:350px;margin-bottom:12px}
+.date-filter{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.date-filter input{padding:8px;width:180px}
 @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:650px){.sidebar{width:100%;height:auto;position:relative}.app{display:block}.main{margin:0;width:100%;padding:12px}.nav{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.nav button{font-size:12px;padding:9px}.cards,.grid,.two{grid-template-columns:1fr}.header h1{font-size:21px}}
 </style>
@@ -64,8 +67,9 @@ th{background:#f8fafc;color:#4b5563;font-size:13px}
 </aside>
 
 <main class="main">
+<!-- DASHBOARD -->
 <section id="dashboard" class="page active">
-<div class="header"><div><h1>Dashboard</h1><p>Welcome to Muhammad Ibrahim Kiryana</p></div><button class="primary" onclick="showPage('sales')">+ New Sale</button></div>
+<div class="header"><div><h1>Dashboard</h1><p>Today's Summary - <span id="dashDate"></span></p></div><button class="primary" onclick="showPage('sales')">+ New Sale</button></div>
 <div class="cards">
 <div class="card"><p>Total Products</p><h2 id="dProducts">0</h2></div>
 <div class="card"><p>Today's Sales</p><h2 id="dSales">Rs 0</h2></div>
@@ -74,10 +78,11 @@ th{background:#f8fafc;color:#4b5563;font-size:13px}
 </div>
 <div class="two">
 <div class="panel"><h3>Low Stock</h3><div id="lowStock"></div></div>
-<div class="panel"><h3>Recent Sales</h3><div id="recentSales"></div></div>
+<div class="panel"><h3>Today's Sales</h3><div id="recentSales"></div></div>
 </div>
 </section>
 
+<!-- PRODUCTS -->
 <section id="products" class="page">
 <div class="header"><div><h1>Products & Stock</h1><p>Add and manage shop items</p></div><button class="primary" onclick="openProduct()">+ Add Product</button></div>
 <div class="panel">
@@ -98,8 +103,9 @@ th{background:#f8fafc;color:#4b5563;font-size:13px}
 </div>
 </section>
 
+<!-- NEW SALE -->
 <section id="sales" class="page">
-<div class="header"><div><h1>New Sale</h1><p>Create a customer bill</p></div></div>
+<div class="header"><div><h1>New Sale</h1><p>Create a customer bill with date</p></div></div>
 <div class="two">
 <div class="panel"><h3>Add Item to Bill</h3>
 <div class="grid">
@@ -109,33 +115,48 @@ th{background:#f8fafc;color:#4b5563;font-size:13px}
 <div class="form-actions"><button class="primary" onclick="addToCart()">Add to Bill</button></div>
 <hr style="margin:18px 0;border:0;border-top:1px solid #eee">
 <div><label>Customer</label><input id="saleCustomer" placeholder="Walk-in Customer"></div>
-<div style="margin-top:10px"><label>Payment</label><select id="salePayment"><option>Cash</option><option>Udhaar</option></select></div>
+<div style="margin-top:10px"><label>Payment</label>
+<select id="salePayment"><option>Cash</option><option>Udhaar</option></select>
+</div>
+<div style="margin-top:10px"><label>Sale Date</label><input id="saleDate" type="date"></div>
 <div class="form-actions"><button class="success" onclick="completeSale()">Complete Sale</button><button class="muted" onclick="clearCart()">Clear</button></div>
 </div>
-<div class="panel"><h3>Current Bill</h3><div class="table-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody id="cartTable"></tbody></table></div><div class="total">Total: <span id="cartTotal">Rs 0</span></div></div>
+<div class="panel"><h3>Current Bill</h3><div class="table-wrap"><table><thead><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr></thead><tbody id="cartTable"></tbody></table></div><div class="total">Total: <span id="cartTotal">Rs 0</span></div>
+<button class="primary" style="margin-top:10px" onclick="printReceipt()">🖨️ Print Receipt</button>
+</div>
 </div>
 </section>
 
+<!-- CUSTOMERS -->
 <section id="customers" class="page">
 <div class="header"><div><h1>Customers & Udhaar</h1><p>Track customer balances</p></div><button class="primary" onclick="openCustomer()">+ Add Customer</button></div>
-<div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Udhaar</th><th>Action</th></tr></thead><tbody id="customerTable"></tbody></table></div></div>
+<div class="panel">
+<div class="table-wrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Total Udhaar</th><th>Action</th></tr></thead><tbody id="customerTable"></tbody></table></div>
+</div>
 <div class="panel" id="customerForm" style="display:none"><h3>Add Customer</h3><div class="grid"><div><label>Name</label><input id="cName"></div><div><label>Phone</label><input id="cPhone"></div><div><label>Opening Udhaar</label><input id="cDue" type="number" value="0"></div></div><div class="form-actions"><button class="success" onclick="saveCustomer()">Save</button><button class="muted" onclick="closeCustomer()">Cancel</button></div></div>
 </section>
 
+<!-- SUPPLIERS -->
 <section id="suppliers" class="page">
 <div class="header"><div><h1>Suppliers</h1><p>Manage supplier balances</p></div><button class="primary" onclick="openSupplier()">+ Add Supplier</button></div>
 <div class="panel"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Phone</th><th>Payable</th><th>Action</th></tr></thead><tbody id="supplierTable"></tbody></table></div></div>
 <div class="panel" id="supplierForm" style="display:none"><h3>Add Supplier</h3><div class="grid"><div><label>Name</label><input id="sName"></div><div><label>Phone</label><input id="sPhone"></div><div><label>Payable</label><input id="sDue" type="number" value="0"></div></div><div class="form-actions"><button class="success" onclick="saveSupplier()">Save</button><button class="muted" onclick="closeSupplier()">Cancel</button></div></div>
 </section>
 
+<!-- EXPENSES -->
 <section id="expenses" class="page">
 <div class="header"><div><h1>Expenses</h1><p>Record daily shop expenses</p></div></div>
 <div class="panel"><div class="grid"><div><label>Description</label><input id="eDesc" placeholder="Electricity, transport..."></div><div><label>Amount</label><input id="eAmount" type="number"></div><div><label>Date</label><input id="eDate" type="date"></div></div><div class="form-actions"><button class="success" onclick="addExpense()">Add Expense</button></div></div>
 <div class="panel"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div>
 </section>
 
+<!-- REPORTS -->
 <section id="reports" class="page">
-<div class="header"><div><h1>Reports</h1><p>Sales, profit and expense summary</p></div><button class="primary" onclick="window.print()">Print Report</button></div>
+<div class="header"><div><h1>Reports</h1><p>Sales, profit and expense summary</p></div><button class="primary" onclick="window.print()">🖨️ Print Report</button></div>
+<div class="date-filter">
+<label>Filter by Date: <input type="date" id="reportDate" onchange="renderReports()"></label>
+<button class="muted" onclick="document.getElementById('reportDate').value='';renderReports()">Clear Filter</button>
+</div>
 <div class="cards">
 <div class="card"><p>Total Sales</p><h2 id="rSales">Rs 0</h2></div>
 <div class="card"><p>Total Profit</p><h2 id="rProfit">Rs 0</h2></div>
@@ -155,6 +176,7 @@ let editProductId=null, cart=[];
 function saveDB(){localStorage.setItem(KEY,JSON.stringify(db));renderAll()}
 function rs(n){return "Rs "+Number(n||0).toLocaleString("en-PK")}
 function today(){return new Date().toISOString().slice(0,10)}
+
 function showPage(id,btn){
  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
  document.getElementById(id).classList.add("active");
@@ -162,6 +184,8 @@ function showPage(id,btn){
  if(btn)btn.classList.add("active");
  renderAll();
 }
+
+// PRODUCTS
 function openProduct(){editProductId=null;document.getElementById("productForm").style.display="block";document.getElementById("productFormTitle").textContent="Add Product"}
 function closeProduct(){document.getElementById("productForm").style.display="none"}
 function saveProduct(){
@@ -172,7 +196,7 @@ function saveProduct(){
 }
 function editProduct(id){
  let p=db.products.find(x=>x.id===id);if(!p)return;
- editProductId=id;openProduct();pName.value=p.name;pCat.value=p.cat;pQty.value=p.qty;pBuy.value=p.buy;pSell.value=p.sell;pUnit.value=p.unit;productFormTitle.textContent="Edit Product";
+ editProductId=id;openProduct();pName.value=p.name;pCat.value=p.cat;pQty.value=p.qty;pBuy.value=p.buy;pSell.value=p.sell;pUnit.value=p.unit;document.getElementById("productFormTitle").textContent="Edit Product";
 }
 function deleteProduct(id){if(confirm("Delete this product?")){db.products=db.products.filter(x=>x.id!==id);saveDB()}}
 function renderProducts(){
@@ -180,6 +204,8 @@ function renderProducts(){
  productTable.innerHTML=db.products.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q)).map(p=>`<tr><td><b>${p.name}</b><br><small>${p.unit}</small></td><td>${p.cat}</td><td><span class="badge ${p.qty===0?'out':p.qty<=5?'low':'in'}">${p.qty}</span></td><td>${rs(p.buy)}</td><td>${rs(p.sell)}</td><td>${rs(p.qty*p.buy)}</td><td class="actions"><button class="muted" onclick="editProduct(${p.id})">Edit</button><button class="danger" onclick="deleteProduct(${p.id})">Delete</button></td></tr>`).join("")||`<tr><td colspan="7" class="empty">No products yet</td></tr>`;
  saleProduct.innerHTML=db.products.map(p=>`<option value="${p.id}" ${p.qty<=0?'disabled':''}>${p.name} | ${rs(p.sell)} | Stock ${p.qty}</option>`).join("");
 }
+
+// CART
 function addToCart(){
  let p=db.products.find(x=>x.id==saleProduct.value),qty=+saleQty.value;
  if(!p||qty<1)return alert("Select product and quantity");
@@ -192,44 +218,117 @@ function renderCart(){
  cartTotal.textContent=rs(cart.reduce((a,x)=>a+x.qty*x.price,0));
 }
 function clearCart(){cart=[];renderCart()}
+
+// COMPLETE SALE
 function completeSale(){
  if(!cart.length)return alert("Add items first");
  let total=cart.reduce((a,x)=>a+x.qty*x.price,0),profit=cart.reduce((a,x)=>a+x.qty*(x.price-x.buy),0);
  let customer=saleCustomer.value.trim()||"Walk-in Customer",payment=salePayment.value;
- cart.forEach(x=>{let p=db.products.find(p=>p.id===x.id);p.qty-=x.qty});
- db.sales.unshift({id:Date.now(),date:today(),customer,payment,total,profit,items:[...cart]});
- if(payment==="Udhaar"&&customer!=="Walk-in Customer"){
+ let saleDate=saleDate.value || today();
+ cart.forEach(x=>{let p=db.products.find(p=>p.id===x.id); if(p)p.qty-=x.qty});
+ db.sales.unshift({id:Date.now(),date:saleDate,customer,payment,total,profit,items:[...cart]});
+ if(payment==="Udhaar" && customer!=="Walk-in Customer"){
   let c=db.customers.find(x=>x.name.toLowerCase()===customer.toLowerCase());
-  if(c)c.due+=total;else db.customers.push({id:Date.now()+1,name:customer,phone:"",due:total});
+  if(c)c.due+=total; else db.customers.push({id:Date.now()+1,name:customer,phone:"",due:total});
  }
- alert("Sale completed: "+rs(total));saleCustomer.value="";clearCart();saveDB();showPage("dashboard");
+ alert("✅ Sale completed: "+rs(total));saleCustomer.value="";clearCart();saveDB();showPage("dashboard");
 }
+
+// PRINT RECEIPT
+function printReceipt(){
+ if(!cart.length)return alert("Bill is empty! Add items first.");
+ let total=cart.reduce((a,x)=>a+x.qty*x.price,0);
+ let customer=saleCustomer.value.trim()||"Walk-in Customer";
+ let date=saleDate.value || today();
+ let payment=salePayment.value;
+ let items=cart.map(x=>`<tr><td>${x.name}</td><td>${x.qty}</td><td>${rs(x.price)}</td><td>${rs(x.qty*x.price)}</td></tr>`).join("");
+ let win=window.open('','_blank');
+ win.document.write(`
+ <html><head><title>Receipt</title><style>
+ body{font-family:Arial;padding:20px;max-width:400px;margin:auto}
+ .receipt{border:2px solid #000;padding:20px}
+ h2{text-align:center;font-size:18px;margin:0}
+ hr{border:1px dashed #000}
+ table{width:100%;border-collapse:collapse}
+ td{padding:5px 0;border-bottom:1px dotted #ccc}
+ .total{font-size:18px;font-weight:bold;text-align:right}
+ .footer{text-align:center;margin-top:15px;font-size:12px}
+ </style></head>
+ <body>
+ <div class="receipt">
+ <h2>🛒 Muhammad Ibrahim Kiryana</h2>
+ <p style="text-align:center;font-size:13px">Shop Management System</p>
+ <hr>
+ <p><b>Date:</b> ${date}</p>
+ <p><b>Customer:</b> ${customer}</p>
+ <p><b>Payment:</b> ${payment}</p>
+ <hr>
+ <table><tr><th>Item</th><th>Qty</th><th>Price</th><th>Total</th></tr>
+ ${items}
+ </table>
+ <hr>
+ <div class="total">Total: ${rs(total)}</div>
+ ${payment==="Udhaar"?`<p style="color:red;font-weight:bold">⚠️ Udhaar (Due): ${rs(total)}</p>`:''}
+ <hr>
+ <p class="footer">Thank you for shopping!</p>
+ </div>
+ <script>
+ setTimeout(()=>{window.print();},500);
+ <\/script>
+ </body></html>
+ `);
+ win.document.close();
+}
+
+// CUSTOMERS
 function openCustomer(){customerForm.style.display="block"} function closeCustomer(){customerForm.style.display="none"}
 function saveCustomer(){let name=cName.value.trim();if(!name)return alert("Name required");db.customers.push({id:Date.now(),name,phone:cPhone.value.trim(),due:+cDue.value||0});closeCustomer();cName.value=cPhone.value="";cDue.value=0;saveDB()}
 function payCustomer(id){let c=db.customers.find(x=>x.id===id);if(!c||c.due<=0)return;let n=+prompt("Payment received",c.due);if(n>0){c.due=Math.max(0,c.due-n);saveDB()}}
 function deleteCustomer(id){if(confirm("Delete customer?")){db.customers=db.customers.filter(x=>x.id!==id);saveDB()}}
 function renderCustomers(){customerTable.innerHTML=db.customers.map(c=>`<tr><td>${c.name}</td><td>${c.phone||"-"}</td><td>${rs(c.due)}</td><td class="actions"><button class="success" onclick="payCustomer(${c.id})">Receive</button><button class="danger" onclick="deleteCustomer(${c.id})">Delete</button></td></tr>`).join("")||`<tr><td colspan="4" class="empty">No customers</td></tr>`}
+
+// SUPPLIERS
 function openSupplier(){supplierForm.style.display="block"} function closeSupplier(){supplierForm.style.display="none"}
 function saveSupplier(){let name=sName.value.trim();if(!name)return alert("Name required");db.suppliers.push({id:Date.now(),name,phone:sPhone.value.trim(),due:+sDue.value||0});closeSupplier();saveDB()}
 function paySupplier(id){let s=db.suppliers.find(x=>x.id===id);if(!s||s.due<=0)return;let n=+prompt("Payment made",s.due);if(n>0){s.due=Math.max(0,s.due-n);saveDB()}}
 function deleteSupplier(id){if(confirm("Delete supplier?")){db.suppliers=db.suppliers.filter(x=>x.id!==id);saveDB()}}
 function renderSuppliers(){supplierTable.innerHTML=db.suppliers.map(s=>`<tr><td>${s.name}</td><td>${s.phone||"-"}</td><td>${rs(s.due)}</td><td class="actions"><button class="success" onclick="paySupplier(${s.id})">Pay</button><button class="danger" onclick="deleteSupplier(${s.id})">Delete</button></td></tr>`).join("")||`<tr><td colspan="4" class="empty">No suppliers</td></tr>`}
+
+// EXPENSES
 function addExpense(){let desc=eDesc.value.trim(),amount=+eAmount.value;if(!desc||amount<=0)return alert("Enter description and amount");db.expenses.unshift({id:Date.now(),date:eDate.value||today(),desc,amount});eDesc.value="";eAmount.value="";saveDB()}
 function deleteExpense(id){if(confirm("Delete expense?")){db.expenses=db.expenses.filter(x=>x.id!==id);saveDB()}}
 function renderExpenses(){expenseTable.innerHTML=db.expenses.map(e=>`<tr><td>${e.date}</td><td>${e.desc}</td><td>${rs(e.amount)}</td><td><button class="danger" onclick="deleteExpense(${e.id})">Delete</button></td></tr>`).join("")||`<tr><td colspan="4" class="empty">No expenses</td></tr>`}
+
+// DASHBOARD (only today's data)
 function renderDashboard(){
- let ts=db.sales.filter(s=>s.date===today()),sales=ts.reduce((a,s)=>a+s.total,0),profit=ts.reduce((a,s)=>a+s.profit,0),due=db.customers.reduce((a,c)=>a+c.due,0);
+ let td=today();
+ let ts=db.sales.filter(s=>s.date===td);
+ let sales=ts.reduce((a,s)=>a+s.total,0),profit=ts.reduce((a,s)=>a+s.profit,0),due=db.customers.reduce((a,c)=>a+c.due,0);
  dProducts.textContent=db.products.length;dSales.textContent=rs(sales);dProfit.textContent=rs(profit);dDue.textContent=rs(due);
+ document.getElementById('dashDate').textContent=td;
  lowStock.innerHTML=db.products.filter(p=>p.qty<=5).map(p=>`<p style="padding:8px 0">${p.name} <b style="float:right">${p.qty} left</b></p>`).join("")||"<p>No low stock items.</p>";
- recentSales.innerHTML=db.sales.slice(0,6).map(s=>`<p style="padding:8px 0">${s.customer} <b style="float:right">${rs(s.total)}</b></p>`).join("")||"<p>No sales yet.</p>";
+ recentSales.innerHTML=ts.slice(0,6).map(s=>`<p style="padding:8px 0">${s.customer} <b style="float:right">${rs(s.total)}</b></p>`).join("")||"<p>No sales today.</p>";
 }
+
+// REPORTS (with date filter)
 function renderReports(){
- let sales=db.sales.reduce((a,s)=>a+s.total,0),profit=db.sales.reduce((a,s)=>a+s.profit,0),expense=db.expenses.reduce((a,e)=>a+e.amount,0);
- rSales.textContent=rs(sales);rProfit.textContent=rs(profit);rExpense.textContent=rs(expense);rNet.textContent=rs(profit-expense);
- reportTable.innerHTML=db.sales.map(s=>`<tr><td>${s.date}</td><td>${s.customer}</td><td>${s.payment}</td><td>${rs(s.total)}</td><td>${rs(s.profit)}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">No sales</td></tr>`;
+ let filterDate=document.getElementById('reportDate').value;
+ let sales=db.sales;
+ if(filterDate) sales=sales.filter(s=>s.date===filterDate);
+ let totalSales=sales.reduce((a,s)=>a+s.total,0),profit=sales.reduce((a,s)=>a+s.profit,0);
+ let expense=db.expenses;
+ if(filterDate) expense=expense.filter(e=>e.date===filterDate);
+ let totalExpense=expense.reduce((a,e)=>a+e.amount,0);
+ rSales.textContent=rs(totalSales);rProfit.textContent=rs(profit);rExpense.textContent=rs(totalExpense);rNet.textContent=rs(profit-totalExpense);
+ reportTable.innerHTML=sales.map(s=>`<tr><td>${s.date}</td><td>${s.customer}</td><td>${s.payment}</td><td>${rs(s.total)}</td><td>${rs(s.profit)}</td></tr>`).join("")||`<tr><td colspan="5" class="empty">No sales</td></tr>`;
 }
+
 function renderAll(){renderProducts();renderCustomers();renderSuppliers();renderExpenses();renderDashboard();renderReports();renderCart()}
-eDate.value=today();renderAll();
+
+// INIT
+document.getElementById('saleDate').value=today();
+document.getElementById('eDate').value=today();
+renderAll();
 </script>
 </body>
 </html>
