@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+background:#0f172a;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+width:350px;
+background:white;
+padding:25px;
+border-radius:15px;
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:12px;
+border:1px solid #ccc;
+border-radius:10px;
+box-sizing:border-box;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:10px;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>WiFi Admin Login</h2>
+
+<input type="text" id="username" placeholder="Username">
+
+<input type="password" id="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+</div>
+
+<script>
+
+const USERNAME = "admin";
+
+const PASSWORD = "12345";
+
+function login(){
+
+const user =
+document.getElementById("username").value;
+
+const pass =
+document.getElementById("password").value;
+
+if(user === USERNAME && pass === PASSWORD){
+
+localStorage.setItem("wifiLogin","true");
+
+location.href = "index.html";
+
+}else{
+
+alert("Wrong Username or Password");
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

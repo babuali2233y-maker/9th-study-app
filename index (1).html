@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WiFi Customers Panel</title>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:#eef2ff;
+padding:15px;
+color:#111827;
+}
+
+.container{
+max-width:1400px;
+margin:auto;
+background:white;
+padding:20px;
+border-radius:20px;
+box-shadow:0 5px 20px rgba(0,0,0,0.08);
+}
+
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.title{
+font-size:32px;
+font-weight:bold;
+}
+
+.top-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+button{
+border:none;
+padding:12px 18px;
+border-radius:12px;
+cursor:pointer;
+font-weight:bold;
+transition:0.2s;
+}
+
+button:hover{
+opacity:0.9;
+}
+
+.add-btn{
+background:#2563eb;
+color:white;
+}
+
+.pdf-btn{
+background:#7c3aed;
+color:white;
+}
+
+.logout-btn{
+background:#111827;
+color:white;
+}
+
+.save-btn{
+background:#16a34a;
+color:white;
+width:100%;
+margin-top:15px;
+}
+
+.edit-btn{
+background:#eab308;
+color:black;
+padding:8px 12px;
+}
+
+.delete-btn{
+background:#dc2626;
+color:white;
+padding:8px 12px;
+}
+
+.cancel-btn{
+background:#6b7280;
+color:white;
+width:100%;
+margin-top:10px;
+}
+
+#formBox{
+display:none;
+background:#f8fafc;
+padding:15px;
+border-radius:15px;
+margin-bottom:20px;
+border:1px solid #ddd;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:12px;
+}
+
+input{
+width:100%;
+padding:13px;
+border:1px solid #d1d5db;
+border-radius:12px;
+font-size:15px;
+outline:none;
+}
+
+input:focus{
+border-color:#2563eb;
+}
+
+.search-box{
+margin:20px 0;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:25px;
+}
+
+.card{
+background:linear-gradient(135deg,#2563eb,#1d4ed8);
+padding:22px;
+border-radius:18px;
+color:white;
+}
+
+.card h3{
+font-size:18px;
+margin-bottom:10px;
+}
+
+.card h1{
+font-size:38px;
+}
+
+.table-box{
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+border-radius:15px;
+width:100%;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th{
+background:#2563eb;
+color:white;
+padding:14px;
+font-size:15px;
+white-space:nowrap;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:center;
+white-space:nowrap;
+}
+
+tr:hover{
+background:#f9fafb;
+}
+
+.expired{
+background:#ffe2e2 !important;
+color:#991b1b;
+}
+
+.status{
+padding:6px 12px;
+border-radius:30px;
+font-size:13px;
+font-weight:bold;
+display:inline-block;
+}
+
+.active-status{
+background:#dcfce7;
+color:#166534;
+}
+
+.expired-status{
+background:#fecaca;
+color:#991b1b;
+}
+
+.empty{
+text-align:center;
+padding:30px;
+font-size:18px;
+color:#777;
+}
+
+.desktop-only{
+display:table-cell;
+}
+
+@media(max-width:700px){
+
+.container{
+padding:12px;
+}
+
+.title{
+font-size:22px;
+}
+
+.top-actions{
+width:100%;
+display:flex;
+flex-wrap:wrap;
+}
+
+.top-actions button{
+flex:1;
+font-size:13px;
+padding:10px;
+}
+
+.card{
+padding:18px;
+}
+
+.card h1{
+font-size:28px;
+}
+
+.table-box{
+overflow-x:auto;
+}
+
+table{
+min-width:650px;
+}
+
+th{
+font-size:12px;
+padding:8px;
+white-space:nowrap;
+}
+
+td{
+font-size:12px;
+padding:8px;
+white-space:nowrap;
+}
+
+.edit-btn,
+.delete-btn{
+padding:6px 8px;
+font-size:11px;
+}
+
+.desktop-only{
+display:none;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<script>
+
+if(localStorage.getItem("wifiLogin") !== "true"){
+
+location.href = "login.html";
+
+}
+
+</script>
+
+<div class="container">
+
+<div class="topbar">
+
+<div class="title">
+WiFi Customers Panel
+</div>
+
+<div class="top-actions">
+
+<button class="add-btn" onclick="toggleForm()">
++ Add User
+</button>
+
+<button class="pdf-btn" onclick="downloadPDF()">
+Export PDF
+</button>
+
+<button class="logout-btn" onclick="logout()">
+Logout
+</button>
+
+</div>
+
+</div>
+
+<div id="formBox">
+
+<div class="grid">
+
+<input type="hidden" id="editId">
+
+<input type="text" id="name" placeholder="Customer Name">
+
+<input type="text" id="number" placeholder="Mobile Number">
+
+<input type="number" id="package" placeholder="Package Mbps">
+
+<input type="number" id="amount" placeholder="Amount">
+
+<input type="date" id="start_date">
+
+<input type="date" id="end_date">
+
+</div>
+
+<button class="save-btn" onclick="saveCustomer()">
+Save Customer
+</button>
+
+<button class="cancel-btn" onclick="closeForm()">
+Close
+</button>
+
+</div>
+
+<div class="search-box">
+
+<input
+type="text"
+id="search"
+placeholder="Search Name or Number"
+onkeyup="searchData()"
+>
+
+</div>
+
+<div class="cards">
+
+<div class="card">
+<h3>Total Customers</h3>
+<h1 id="totalCustomers">0</h1>
+</div>
+
+<div class="card">
+<h3>Total Mbps</h3>
+<h1 id="totalMbps">0</h1>
+</div>
+
+<div class="card">
+<h3>Total Amount</h3>
+<h1 id="totalAmount">0</h1>
+</div>
+
+</div>
+
+<div class="table-box">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Name</th>
+
+<th>Number</th>
+
+<th>Package</th>
+
+<th>Amount</th>
+
+<th class="desktop-only">Start Date</th>
+
+<th class="desktop-only">Expire Date</th>
+
+<th>Status</th>
+
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="data">
+
+<tr>
+<td colspan="8" class="empty">
+Loading...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+const SUPABASE_URL =
+"https://hbqlqwbwrfapbkeaxhdz.supabase.co";
+
+const API_KEY =
+"sb_publishable_nvpKBQIeZ8WaOTE5RcQACQ_uqFrC6i_";
+
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
+SUPABASE_URL,
+API_KEY
+);
+
+window.logout = function(){
+
+localStorage.removeItem("wifiLogin");
+
+location.href = "login.html";
+
+}
+
+window.toggleForm = function(){
+
+const form =
+document.getElementById("formBox");
+
+form.style.display =
+form.style.display === "block"
+?
+"none"
+:
+"block";
+
+}
+
+window.closeForm = function(){
+
+document.getElementById("formBox")
+.style.display = "none";
+
+clearForm();
+
+}
+
+function clearForm(){
+
+document.getElementById("editId").value = "";
+
+document.getElementById("name").value = "";
+
+document.getElementById("number").value = "";
+
+document.getElementById("package").value = "";
+
+document.getElementById("amount").value = "";
+
+document.getElementById("start_date").value = "";
+
+document.getElementById("end_date").value = "";
+
+}
+
+window.saveCustomer = async function(){
+
+const id =
+document.getElementById("editId").value;
+
+const customer = {
+
+"Name":
+document.getElementById("name").value,
+
+"Number":
+document.getElementById("number").value,
+
+"Package Plan":
+document.getElementById("package").value,
+
+"Amount":
+document.getElementById("amount").value,
+
+"Start date":
+document.getElementById("start_date").value,
+
+"Expire Date":
+document.getElementById("end_date").value
+
+};
+
+let response;
+
+if(id){
+
+response = await supabaseClient
+.from("wifiuser")
+.update(customer)
+.eq("id", id);
+
+}else{
+
+response = await supabaseClient
+.from("wifiuser")
+.insert([customer]);
+
+}
+
+if(response.error){
+
+alert(response.error.message);
+
+return;
+
+}
+
+alert(id ? "Customer Updated" : "Customer Added");
+
+closeForm();
+
+loadCustomers();
+
+}
+
+async function loadCustomers(){
+
+const { data, error } = await supabaseClient
+.from("wifiuser")
+.select("*")
+.order("id",{ ascending:false });
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+renderTable(data);
+
+}
+
+function renderTable(data){
+
+let html = "";
+
+let totalCustomers = 0;
+
+let totalAmount = 0;
+
+let totalMbps = 0;
+
+const today = new Date();
+
+if(data.length === 0){
+
+html = `
+<tr>
+<td colspan="8" class="empty">
+No Customers Found
+</td>
+</tr>
+`;
+
+}
+
+data.forEach(e=>{
+
+totalCustomers++;
+
+totalAmount += Number(e["Amount"] || 0);
+
+totalMbps += Number(e["Package Plan"] || 0);
+
+const expired =
+new Date(e["Expire Date"]) < today;
+
+html += `
+
+<tr class="${expired ? 'expired' : ''}">
+
+<td>${e["Name"]}</td>
+
+<td>${e["Number"]}</td>
+
+<td>${e["Package Plan"]} Mbps</td>
+
+<td>Rs ${e["Amount"]}</td>
+
+<td class="desktop-only">${e["Start date"]}</td>
+
+<td class="desktop-only">${e["Expire Date"]}</td>
+
+<td>
+
+<span class="status ${
+expired
+?
+'expired-status'
+:
+'active-status'
+}">
+
+${
+expired
+?
+'Expired'
+:
+'Active'
+}
+
+</span>
+
+</td>
+
+<td>
+
+<button
+class="edit-btn"
+onclick="editCustomer(${e.id})">
+Edit
+</button>
+
+<button
+class="delete-btn"
+onclick="deleteCustomer(${e.id})">
+Delete
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+document.getElementById("data").innerHTML = html;
+
+document.getElementById("totalCustomers").innerText =
+totalCustomers;
+
+document.getElementById("totalAmount").innerText =
+"Rs " + totalAmount;
+
+document.getElementById("totalMbps").innerText =
+totalMbps + " Mbps";
+
+}
+
+window.editCustomer = async function(id){
+
+const { data, error } = await supabaseClient
+.from("wifiuser")
+.select("*")
+.eq("id", id)
+.single();
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+document.getElementById("formBox")
+.style.display = "block";
+
+document.getElementById("editId").value =
+data.id;
+
+document.getElementById("name").value =
+data["Name"];
+
+document.getElementById("number").value =
+data["Number"];
+
+document.getElementById("package").value =
+data["Package Plan"];
+
+document.getElementById("amount").value =
+data["Amount"];
+
+document.getElementById("start_date").value =
+data["Start date"];
+
+document.getElementById("end_date").value =
+data["Expire Date"];
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+}
+
+window.deleteCustomer = async function(id){
+
+if(!confirm("Delete Customer?")) return;
+
+await supabaseClient
+.from("wifiuser")
+.delete()
+.eq("id",id);
+
+loadCustomers();
+
+}
+
+window.searchData = async function(){
+
+const search =
+document.getElementById("search")
+.value
+.toLowerCase();
+
+const { data } = await supabaseClient
+.from("wifiuser")
+.select("*")
+.order("id",{ ascending:false });
+
+const filtered = data.filter(e => {
+
+const name =
+(e["Name"] || "").toLowerCase();
+
+const number =
+(e["Number"] || "").toLowerCase();
+
+return (
+name.includes(search)
+||
+number.includes(search)
+);
+
+});
+
+renderTable(filtered);
+
+}
+
+window.downloadPDF = async function(){
+
+const { jsPDF } = window.jspdf;
+
+const doc = new jsPDF();
+
+const { data, error } = await supabaseClient
+.from("wifiuser")
+.select("*")
+.order("id",{ ascending:false });
+
+if(error){
+
+alert(error.message);
+
+return;
+
+}
+
+const rows = [];
+
+data.forEach(e => {
+
+rows.push([
+
+e["Name"],
+
+e["Number"],
+
+e["Package Plan"] + " Mbps",
+
+"Rs " + e["Amount"],
+
+e["Start date"],
+
+e["Expire Date"]
+
+]);
+
+});
+
+doc.setFontSize(18);
+
+doc.text("WiFi Customers List", 14, 20);
+
+doc.autoTable({
+
+startY:30,
+
+head:[[
+"Name",
+"Number",
+"Package",
+"Amount",
+"Start Date",
+"Expire Date"
+]],
+
+body:rows
+
+});
+
+doc.save("wifi-customers.pdf");
+
+}
+
+loadCustomers();
+
+</script>
+
+</body>
+</html>
