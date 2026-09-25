@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Islamic AI Video Maker - Cinematic Shorts & Reel Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            950: '#022c22',
+                            900: '#064e3b',
+                            800: '#065f46',
+                            500: '#10b981',
+                            400: '#34d399',
+                        },
+                        gold: {
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                        },
+                        darkBg: '#080d14',
+                        darkCard: 'rgba(15, 23, 42, 0.75)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                        urdu: ['Noto Nastaliq Urdu', 'Amiri', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #05080e;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(6, 78, 59, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(202, 138, 4, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.8) 0%, transparent 100%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(13, 22, 38, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card {
+            background: rgba(18, 30, 49, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(52, 211, 153, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.3);
+        }
+
+        .gold-border-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+        }
+
+        .emerald-glow {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(8, 13, 20, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.3);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.6);
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #10b981;
+            cursor: pointer;
+            box-shadow: 0 0 8px #10b981;
+        }
+
+        /* Audio Visualizer Waves */
+        .visualizer-bar {
+            transition: height 0.1s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <header class="sticky top-0 z-40 glass-panel border-b border-emerald-900/40 px-4 lg:px-8 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-800 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-emerald-900/50">
+                <i class="fa-solid fa-kaaba"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold bg-gradient-to-r from-emerald-400 via-teal-200 to-gold-400 bg-clip-text text-transparent">
+                    Islamic AI Video Maker <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-700/50 font-mono">PRO</span>
+                </h1>
+                <p class="text-xs text-slate-400 hidden sm:block">Create Cinematic Halal Shorts, Reels & Stories with AI</p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleApiKeyModal()" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-key text-gold-400"></i>
+                <span id="apiStatusText" class="hidden sm:inline">Gemini API Config</span>
+            </button>
+            <button onclick="openExportModal()" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-900/40 transition flex items-center space-x-2">
+                <i class="fa-solid fa-download"></i>
+                <span>Export Video</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- LEFT COLUMN: Generator Controls & Scene Cards (5 Cols) -->
+        <section class="lg:col-span-5 space-y-6">
+            
+            <!-- AI Generator Settings Panel -->
+            <div class="glass-panel rounded-2xl p-5 relative overflow-hidden">
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-sm font-bold text-emerald-400 tracking-wider uppercase flex items-center space-x-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>AI Story Engine</span>
+                    </h2>
+                    <span class="text-xs text-gold-400 bg-gold-500/10 border border-gold-500/20 px-2 py-0.5 rounded-full font-medium">Safe Visual Guardrails Active</span>
+                </div>
+
+                <form id="generatorForm" onsubmit="handleGenerateStory(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Story Topic or Islamic Theme</label>
+                        <input type="text" id="topicInput" required placeholder="e.g. Patience of Prophet Yunus (AS), Benefits of Tahajjud, Power of Gratitude"
+                            class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Scenes</label>
+                            <select id="sceneCountSelect" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                                <option value="3">3 Scenes</option>
+                                <option value="5" selected>5 Scenes</option>
+                                <option value="7">7 Scenes</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Language</label>
+                            <select id="languageSelect" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                                <option value="English" selected>English</option>
+                                <option value="Urdu">Urdu (اردو)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 mb-1">Tone / Style</label>
+                            <select id="styleSelect" class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-2.5 py-2 text-xs text-slate-100 focus:outline-none focus:border-emerald-500">
+                                <option value="Emotional">Emotional</option>
+                                <option value="Inspiring" selected>Inspiring</option>
+                                <option value="Calm & Peaceful">Peaceful</option>
+                                <option value="Educational">Educational</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="generateBtn" 
+                        class="w-full py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 shadow-lg shadow-emerald-950/60 transition duration-200 flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-bolt"></i>
+                        <span>Generate Cinematic Script</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Scene Cards Container -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Generated Story Board</h3>
+                    <button onclick="downloadScriptJSON()" class="text-xs text-emerald-400 hover:underline flex items-center space-x-1">
+                        <i class="fa-solid fa-file-code"></i>
+                        <span>Download Script</span>
+                    </button>
+                </div>
+
+                <div id="scenesContainer" class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                    <!-- Dynamic Scene Cards Injected Here -->
+                    <div class="text-center py-12 glass-card rounded-2xl border border-dashed border-slate-800 text-slate-500">
+                        <i class="fa-solid fa-film text-3xl mb-2 text-slate-600"></i>
+                        <p class="text-sm">No scenes generated yet.</p>
+                        <p class="text-xs text-slate-600">Enter a topic above to create your Islamic video script.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- RIGHT COLUMN: Cinematic Video Canvas Studio (7 Cols) -->
+        <section class="lg:col-span-7 space-y-5">
+            
+            <!-- Main Preview Display -->
+            <div class="glass-panel rounded-2xl p-4 md:p-5 flex flex-col items-center relative overflow-hidden">
+                
+                <!-- Aspect Ratio & Format Controls -->
+                <div class="w-full flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-slate-400 font-semibold">Aspect Ratio:</span>
+                        <div class="bg-slate-900/90 p-1 rounded-lg border border-slate-800 flex space-x-1">
+                            <button onclick="setAspectRatio('9:16')" id="ar916Btn" class="px-2.5 py-1 rounded text-xs font-semibold bg-emerald-600 text-white transition">9:16 (Shorts/Reels)</button>
+                            <button onclick="setAspectRatio('16:9')" id="ar169Btn" class="px-2.5 py-1 rounded text-xs font-semibold text-slate-400 hover:text-white transition">16:9</button>
+                            <button onclick="setAspectRatio('1:1')" id="ar11Btn" class="px-2.5 py-1 rounded text-xs font-semibold text-slate-400 hover:text-white transition">1:1</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center text-xs text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-full border border-emerald-800/50">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+                            Live Canvas Engine
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Canvas Wrapper -->
+                <div id="canvasContainer" class="relative max-w-full flex justify-center items-center bg-black/80 rounded-xl overflow-hidden shadow-2xl border border-slate-800" style="height: 480px; width: 270px;">
+                    <canvas id="videoCanvas" width="1080" height="1920" class="w-full h-full object-contain"></canvas>
+                    
+                    <!-- Overlay Watermark/Badge -->
+                    <div class="absolute top-3 left-3 bg-slate-950/60 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] font-medium text-emerald-400 flex items-center space-x-1.5 pointer-events-none">
+                        <i class="fa-solid fa-moon"></i>
+                        <span>Islamic AI Studio</span>
+                    </div>
+
+                    <!-- Canvas Loading Overlay -->
+                    <div id="canvasLoader" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm hidden flex-col items-center justify-center text-center p-4">
+                        <div class="w-10 h-10 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+                        <p class="text-xs font-semibold text-emerald-400">Generating AI Storyboard...</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Timeline Bar -->
+                <div class="w-full mt-4 space-y-2">
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span id="currentTimeDisplay">00:00</span>
+                        <span id="sceneTitleDisplay" class="font-medium text-gold-400 truncate max-w-[200px]">Scene 1: Loading...</span>
+                        <span id="totalTimeDisplay">00:00</span>
+                    </div>
+
+                    <!-- Scrubber Bar -->
+                    <div class="relative w-full h-2 bg-slate-800 rounded-full cursor-pointer overflow-hidden group" onclick="seekPlayback(event)">
+                        <div id="timelineProgress" class="absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-gold-400 w-0 transition-all duration-100"></div>
+                    </div>
+
+                    <!-- Scene Block Visual Indicators -->
+                    <div id="timelineSceneBlocks" class="flex w-full gap-1 pt-1">
+                        <!-- Dynamic Scene Blocks injected here -->
+                    </div>
+                </div>
+
+                <!-- Video Transport Controls -->
+                <div class="w-full mt-4 flex items-center justify-between border-t border-slate-800/80 pt-3">
+                    <div class="flex items-center space-x-2">
+                        <button onclick="prevScene()" title="Previous Scene" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-step-backward text-xs"></i>
+                        </button>
+                        <button onclick="togglePlayPause()" id="playPauseBtn" class="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold flex items-center justify-center shadow-lg shadow-emerald-900/40 transition">
+                            <i class="fa-solid fa-play text-sm ml-0.5"></i>
+                        </button>
+                        <button onclick="nextScene()" title="Next Scene" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-step-forward text-xs"></i>
+                        </button>
+                        <button onclick="restartVideo()" title="Restart" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-rotate-left text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Volume & Audio Control Strip -->
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                            <i class="fa-solid fa-microphone text-xs text-emerald-400"></i>
+                            <input type="range" id="voiceVol" min="0" max="1" step="0.1" value="1" onchange="updateAudioVolumes()" class="range-slider w-12 accent-emerald-500">
+                        </div>
+                        <div class="flex items-center space-x-1.5 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-800">
+                            <i class="fa-solid fa-music text-xs text-gold-400"></i>
+                            <input type="range" id="musicVol" min="0" max="1" step="0.05" value="0.25" onchange="updateAudioVolumes()" class="range-slider w-12 accent-gold-500">
+                        </div>
+                        <button onclick="toggleFullscreen()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-expand text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Background Audio Synthesizer & Voice Settings Drawer -->
+            <div class="glass-panel rounded-2xl p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-solid fa-sliders text-emerald-400"></i>
+                        <span>Audio & Voice Tuning</span>
+                    </h3>
+                    <!-- Visualizer -->
+                    <div id="audioVisualizer" class="flex items-end space-x-1 h-4">
+                        <div class="visualizer-bar w-1 bg-emerald-500 h-1 rounded-full"></div>
+                        <div class="visualizer-bar w-1 bg-emerald-400 h-2 rounded-full"></div>
+                        <div class="visualizer-bar w-1 bg-teal-400 h-1.5 rounded-full"></div>
+                        <div class="visualizer-bar w-1 bg-gold-400 h-3 rounded-full"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Ambient Islamic Music Mood</label>
+                        <select id="bgMusicSelect" onchange="changeMusicMood()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">
+                            <option value="ambient" selected>Islamic Ambient Drone</option>
+                            <option value="peaceful">Peaceful Ney Synth</option>
+                            <option value="emotional">Emotional Spiritual Pad</option>
+                            <option value="cinematic">Cinematic Documentary</option>
+                            <option value="none">Mute Music</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-slate-400 mb-1">Voiceover Rate / Speed</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="range" id="voiceSpeed" min="0.7" max="1.3" step="0.1" value="0.95" class="range-slider w-full accent-emerald-500">
+                            <span id="speedVal" class="text-xs font-mono text-emerald-400">0.95x</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- API KEY MODAL -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl relative">
+            <button onclick="toggleApiKeyModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gold-500/20 border border-gold-500/30 flex items-center justify-center text-gold-400">
+                    <i class="fa-solid fa-key text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-100">Gemini API Key Setup</h3>
+                    <p class="text-xs text-slate-400">Directly connect Google Gemini 3 Flash model</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Enter your Google Gemini API key below to enable custom AI story generation. Leave empty to use the built-in offline Islamic story generator.
+            </p>
+            <div>
+                <label class="block text-xs font-semibold text-slate-400 mb-1">Gemini API Key</label>
+                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..." 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="saveApiKey()" class="flex-1 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition">Save Key</button>
+                <button onclick="clearApiKey()" class="py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs transition">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IMAGE PROMPT MODAL -->
+    <div id="promptModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl relative">
+            <button onclick="closePromptModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-image text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-100">Halal Visual Image Prompt</h3>
+                    <p class="text-xs text-slate-400">Strictly safe for Midjourney, DALL-E 3 & Imagen</p>
+                </div>
+            </div>
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-emerald-300 leading-relaxed select-all" id="promptModalText">
+                <!-- Injected Prompt -->
+            </div>
+            <div class="flex justify-end space-x-2">
+                <button onclick="copyPromptFromModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center space-x-1">
+                    <i class="fa-solid fa-copy"></i>
+                    <span>Copy Prompt</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT SCENE DRAWER / MODAL -->
+    <div id="editSceneModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-lg w-full rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeEditSceneModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                <i class="fa-solid fa-pen-to-square text-emerald-400"></i>
+                <span>Edit Scene Details</span>
+            </h3>
+
+            <input type="hidden" id="editSceneIndex">
+            
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Scene Title</label>
+                <input type="text" id="editSceneTitle" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100">
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Main On-Screen Text / Subtitle</label>
+                <textarea id="editMainText" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Voiceover Script</label>
+                <textarea id="editVoiceover" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs text-slate-400 mb-1">Quran / Hadith Reference (Optional)</label>
+                <input type="text" id="editReference" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-100">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="saveSceneEdit()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPORT MODAL -->
+    <div id="exportModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl relative">
+            <button onclick="closeExportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-film text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-100">Export Video Studio</h3>
+                    <p class="text-xs text-slate-400">Record canvas & audio directly in browser</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <button onclick="startWebMExport()" id="startExportBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold text-xs shadow-lg transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-record-vinyl text-base animate-pulse"></i>
+                    <span>Export WebM Video (Browser Native)</span>
+                </button>
+
+                <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                    <p class="font-semibold text-gold-400 flex items-center space-x-1">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <span>MP4 Export Information:</span>
+                    </p>
+                    <p>Native WebM video is rendered directly by your browser. For automated MP4 output, FFmpeg backend rendering is recommended in production.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <script>
+        /* GLOBAL APPLICATION STATE */
+        let appState = {
+            apiKey: '',
+            scenes: [],
+            currentSceneIndex: 0,
+            isPlaying: false,
+            playbackStartTime: 0,
+            elapsedTime: 0,
+            aspectRatio: '9:16',
+            canvasWidth: 1080,
+            canvasHeight: 1920,
+            canvasAnimFrame: null,
+            bgMusicMood: 'ambient',
+            voiceVolume: 1.0,
+            musicVolume: 0.25,
+            isRecording: false,
+            mediaRecorder: null,
+            recordedChunks: []
+        };
+
+        /* PROCEDURAL CANVAS ENGINE PARTICLES & RAYS */
+        let canvasParticles = [];
+        let canvasStars = [];
+        
+        /* AUDIO SYNTHESIZER & SPEECH */
+        let audioCtx = null;
+        let musicOscillators = [];
+        let musicGainNode = null;
+        let speechSynth = window.speechSynthesis;
+        let currentUtterance = null;
+
+        window.onload = function() {
+            initCanvas();
+            initAudioSynth();
+            checkApiKey();
+            generateFallbackStory("Patience and Trust in Allah");
+            requestAnimationFrame(renderCanvasFrame);
+        };
+
+        function initCanvas() {
+            const canvas = document.getElementById('videoCanvas');
+            setAspectRatio('9:16');
+
+            // Pre-generate stars & particles
+            canvasParticles = [];
+            for(let i=0; i<60; i++) {
+                canvasParticles.push({
+                    x: Math.random() * appState.canvasWidth,
+                    y: Math.random() * appState.canvasHeight,
+                    radius: Math.random() * 3 + 1,
+                    alpha: Math.random() * 0.7 + 0.3,
+                    speedY: - (Math.random() * 0.8 + 0.2),
+                    speedX: (Math.random() - 0.5) * 0.5
+                });
+            }
+
+            canvasStars = [];
+            for(let i=0; i<120; i++) {
+                canvasStars.push({
+                    x: Math.random() * appState.canvasWidth,
+                    y: Math.random() * appState.canvasHeight * 0.6,
+                    radius: Math.random() * 2 + 0.5,
+                    alpha: Math.random()
+                });
+            }
+        }
+
+        function setAspectRatio(ratio) {
+            appState.aspectRatio = ratio;
+            const canvas = document.getElementById('videoCanvas');
+            const container = document.getElementById('canvasContainer');
+
+            document.getElementById('ar916Btn').className = "px-2.5 py-1 rounded text-xs font-semibold text-slate-400 hover:text-white transition";
+            document.getElementById('ar169Btn').className = "px-2.5 py-1 rounded text-xs font-semibold text-slate-400 hover:text-white transition";
+            document.getElementById('ar11Btn').className = "px-2.5 py-1 rounded text-xs font-semibold text-slate-400 hover:text-white transition";
+
+            if (ratio === '9:16') {
+                appState.canvasWidth = 1080;
+                appState.canvasHeight = 1920;
+                container.style.width = '270px';
+                container.style.height = '480px';
+                document.getElementById('ar916Btn').className = "px-2.5 py-1 rounded text-xs font-semibold bg-emerald-600 text-white transition";
+            } else if (ratio === '16:9') {
+                appState.canvasWidth = 1920;
+                appState.canvasHeight = 1080;
+                container.style.width = '480px';
+                container.style.height = '270px';
+                document.getElementById('ar169Btn').className = "px-2.5 py-1 rounded text-xs font-semibold bg-emerald-600 text-white transition";
+            } else {
+                appState.canvasWidth = 1080;
+                appState.canvasHeight = 1080;
+                container.style.width = '360px';
+                container.style.height = '360px';
+                document.getElementById('ar11Btn').className = "px-2.5 py-1 rounded text-xs font-semibold bg-emerald-600 text-white transition";
+            }
+
+            canvas.width = appState.canvasWidth;
+            canvas.height = appState.canvasHeight;
+        }
+
+        /* MAIN PROCEDURAL RENDER LOOP */
+        function renderCanvasFrame(timestamp) {
+            const canvas = document.getElementById('videoCanvas');
+            const ctx = canvas.getContext('2d');
+            const w = appState.canvasWidth;
+            const h = appState.canvasHeight;
+
+            // Background Fill Gradient
+            const bgGradient = ctx.createRadialGradient(w/2, h/2, 50, w/2, h/2, w);
+            bgGradient.addColorStop(0, '#0a1d2e');
+            bgGradient.addColorStop(0.5, '#040d18');
+            bgGradient.addColorStop(1, '#020509');
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, w, h);
+
+            // Draw Stars
+            ctx.fillStyle = '#ffffff';
+            canvasStars.forEach(s => {
+                ctx.globalAlpha = Math.abs(Math.sin((timestamp * 0.001) + s.x)) * s.alpha;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Ken Burns Panning Geometry / Crescent Motif
+            const panScale = 1 + Math.sin(timestamp * 0.0005) * 0.05;
+            ctx.save();
+            ctx.translate(w/2, h/2);
+            ctx.scale(panScale, panScale);
+            
+            // Draw Sacred Islamic Arch Outline / Crescent
+            ctx.strokeStyle = 'rgba(234, 179, 8, 0.15)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.arc(0, -h*0.1, w*0.35, 0, Math.PI*2);
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Light Rays (Noor)
+            const rayGrad = ctx.createLinearGradient(w/2, 0, w/2, h);
+            rayGrad.addColorStop(0, 'rgba(52, 211, 153, 0.12)');
+            rayGrad.addColorStop(0.6, 'rgba(6, 78, 59, 0.03)');
+            rayGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = rayGrad;
+            ctx.fillRect(0, 0, w, h);
+
+            // Animated Dust Particles (Floating Motes)
+            ctx.fillStyle = '#34d399';
+            canvasParticles.forEach(p => {
+                p.y += p.speedY;
+                p.x += p.speedX;
+                if(p.y < 0) p.y = h;
+                if(p.x < 0) p.x = w;
+                if(p.x > w) p.x = 0;
+
+                ctx.globalAlpha = p.alpha;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1.0;
+
+            // Vignette Overlay
+            const vignette = ctx.createRadialGradient(w/2, h/2, w*0.3, w/2, h/2, w*0.7);
+            vignette.addColorStop(0, 'transparent');
+            vignette.addColorStop(1, 'rgba(0, 0, 0, 0.7)');
+            ctx.fillStyle = vignette;
+            ctx.fillRect(0, 0, w, h);
+
+            // Render Current Scene Text & Typography
+            if (appState.scenes.length > 0) {
+                const currentScene = appState.scenes[appState.currentSceneIndex];
+
+                if (currentScene) {
+                    // Title Header
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#eab308';
+                    ctx.font = `600 ${Math.floor(w * 0.035)}px 'Inter', sans-serif`;
+                    ctx.fillText((currentScene.title || "ISLAMIC STORY").toUpperCase(), w/2, h * 0.22);
+
+                    // Decorative Line under title
+                    ctx.strokeStyle = 'rgba(234, 179, 8, 0.4)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(w/2 - 80, h * 0.24);
+                    ctx.lineTo(w/2 + 80, h * 0.24);
+                    ctx.stroke();
+
+                    // Main Text / Narrative Body
+                    ctx.fillStyle = '#ffffff';
+                    const fontSize = Math.floor(w * 0.048);
+                    ctx.font = `700 ${fontSize}px 'Inter', sans-serif`;
+                    
+                    wrapText(ctx, currentScene.mainText, w/2, h * 0.48, w * 0.82, fontSize * 1.35);
+
+                    // Quran / Hadith Reference Box
+                    if (currentScene.reference && currentScene.reference.trim() !== "") {
+                        ctx.fillStyle = 'rgba(6, 78, 59, 0.6)';
+                        ctx.strokeStyle = 'rgba(52, 211, 153, 0.4)';
+                        const refY = h * 0.78;
+                        const refBoxWidth = w * 0.75;
+                        ctx.fillRect(w/2 - refBoxWidth/2, refY - 30, refBoxWidth, 60);
+                        ctx.strokeRect(w/2 - refBoxWidth/2, refY - 30, refBoxWidth, 60);
+
+                        ctx.fillStyle = '#34d399';
+                        ctx.font = `600 ${Math.floor(w * 0.03)}px 'Inter', sans-serif`;
+                        ctx.fillText(`📖 ${currentScene.reference}`, w/2, refY + 8);
+                    }
+                }
+            }
+
+            // Sync Playback Timeline Progress
+            if (appState.isPlaying) {
+                updatePlaybackProgress();
+            }
+
+            requestAnimationFrame(renderCanvasFrame);
+        }
+
+        /* Helper to wrap canvas text nicely */
+        function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let lines = [];
+
+            for (let n = 0; n < words.length; n++) {
+                const testLine = line + words[n] + ' ';
+                const metrics = ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                if (testWidth > maxWidth && n > 0) {
+                    lines.push(line);
+                    line = words[n] + ' ';
+                } else {
+                    line = testLine;
+                }
+            }
+            lines.push(line);
+
+            let startY = y - ((lines.length - 1) * lineHeight) / 2;
+            for (let k = 0; k < lines.length; k++) {
+                ctx.fillText(lines[k], x, startY + (k * lineHeight));
+            }
+        }
+
+        async function handleGenerateStory(event) {
+            event.preventDefault();
+            const topic = document.getElementById('topicInput').value;
+            const sceneCount = parseInt(document.getElementById('sceneCountSelect').value);
+            const language = document.getElementById('languageSelect').value;
+            const style = document.getElementById('styleSelect').value;
+
+            showCanvasLoader(true);
+            showToast("Generating cinematic Islamic narrative...", "info");
+
+            const apiKey = localStorage.getItem('gemini_api_key') || '';
+
+            if (apiKey) {
+                try {
+                    await generateStoryGemini(apiKey, topic, sceneCount, language, style);
+                } catch (err) {
+                    console.warn("Gemini API error, falling back to local story builder:", err);
+                    showToast("API issue detected. Using local generator fallback.", "warning");
+                    generateFallbackStory(topic, sceneCount);
+                }
+            } else {
+                // Offline Local Generator
+                setTimeout(() => {
+                    generateFallbackStory(topic, sceneCount);
+                    showToast("Generated story using built-in engine.", "success");
+                }, 1000);
+            }
+        }
+
+        async function generateStoryGemini(apiKey, topic, sceneCount, language, style) {
+            const systemPrompt = `You are a respectful Islamic scholar and storyteller.
+Strict Guidelines:
+1. NEVER depict faces or forms of Prophets, Sahaba, or holy figures.
+2. Provide authentic references only if genuine. Otherwise leave reference empty string.
+3. Language must be ${language}.
+4. Tone: ${style}.`;
+
+            const userPrompt = `Generate an Islamic video script with EXACTLY ${sceneCount} scenes on topic: "${topic}".
+Output MUST be a valid JSON array of objects with fields:
+- title (string)
+- background (string visual style)
+- mainText (string concise subtitle text)
+- voiceover (string full spoken narrative)
+- imageDesc (string safe visual description)
+- duration (number, e.g. 7)
+- reference (string or empty)`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: userPrompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                })
+            });
+
+            const data = await response.json();
+            const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            if (jsonText) {
+                const parsedScenes = JSON.parse(jsonText);
+                if (Array.isArray(parsedScenes) && parsedScenes.length > 0) {
+                    appState.scenes = parsedScenes;
+                    onScenesUpdated();
+                    showCanvasLoader(false);
+                    return;
+                }
+            }
+            throw new Error("Invalid response format");
+        }
+
+        /* FALLBACK OFFLINE STORY GENERATOR */
+        function generateFallbackStory(topic, count = 5) {
+            const baseTemplates = [
+                {
+                    title: "The Light of Patience",
+                    background: "Golden sand dunes under starry cosmic sky",
+                    mainText: "In moments of trial, patience becomes our greatest sanctuary.",
+                    voiceover: "In every moment of difficulty, Allah reminds us that patience is not merely waiting, but trusting His divine divine decree.",
+                    imageDesc: "Cinematic desert landscape at dusk with illuminated minarets and glowing starlight, golden ratio composition, 8k resolution, no human faces.",
+                    duration: 7,
+                    reference: "Surah Baqarah 2:153"
+                },
+                {
+                    title: "Gratitude & Abundance",
+                    background: "Serene oasis with reflecting water and glowing crescent",
+                    mainText: "If you are grateful, I will surely increase you in favor.",
+                    voiceover: "Gratitude unlocks the fullness of life. It turns what we have into enough, and more.",
+                    imageDesc: "Peaceful water spring reflecting moonlight near ancient stone arches and olive trees, volumetric lighting, photorealistic.",
+                    duration: 7,
+                    reference: "Surah Ibrahim 14:7"
+                },
+                {
+                    title: "The Power of Prayer",
+                    background: "Grand mosque interior with light rays streaming through dome",
+                    mainText: "Sujud is the place where whispers on earth are heard in the heavens.",
+                    voiceover: "When you prostrate, you are nearest to your Lord. Share your deepest concerns in prayer.",
+                    imageDesc: "Majestic Islamic architectural archway with intricate geometric patterns and warm sunlight rays, atmospheric fog.",
+                    duration: 7,
+                    reference: "Sahih Muslim 482"
+                },
+                {
+                    title: "Seeking Forgiveness",
+                    background: "Calm ocean horizon at dawn with soft golden sunlight",
+                    mainText: "His Mercy encompasses all things.",
+                    voiceover: "Never despair of the mercy of Allah. Every morning brings a fresh opportunity to turn back to Him.",
+                    imageDesc: "Tranquil ocean shoreline under vibrant dawn sky, glowing horizon, peaceful atmosphere.",
+                    duration: 7,
+                    reference: "Surah Az-Zumar 39:53"
+                },
+                {
+                    title: "Peace in Remembrance",
+                    background: "Open Quran on carved wooden stand with ambient lantern light",
+                    mainText: "Unquestionably, by the remembrance of Allah do hearts find rest.",
+                    voiceover: "Through Dhikr and contemplation, the heart finds true tranquility amidst life's storms.",
+                    imageDesc: "Close up of an open book with Arabic calligraphy resting on a classic wooden stand, warm ambient lantern glow.",
+                    duration: 7,
+                    reference: "Surah Ar-Ra'd 13:28"
+                },
+                {
+                    title: "Acts of Kindness",
+                    background: "Blooming green garden with gentle morning dew",
+                    mainText: "Every good deed is a form of charity.",
+                    voiceover: "A smiling face, a kind word, or removing harm from a path—all are heavy on the scales.",
+                    imageDesc: "Sunlit lush garden full of olive branches and roses with soft morning mist, serene macro photography.",
+                    duration: 7,
+                    reference: "Sahih al-Bukhari 6021"
+                },
+                {
+                    title: "Trust in Divine Timing",
+                    background: "Mountain peaks above clouds under twilight sky",
+                    mainText: "Allah is the best of planners.",
+                    voiceover: "What is meant for you will never miss you, and what missed you was never meant for you.",
+                    imageDesc: "Breathtaking mountain peaks breaking through soft clouds at sunset, golden hour twilight.",
+                    duration: 7,
+                    reference: "Surah Al-Anfal 8:30"
+                }
+            ];
+
+            appState.scenes = baseTemplates.slice(0, count);
+            onScenesUpdated();
+            showCanvasLoader(false);
+        }
+
+        function onScenesUpdated() {
+            appState.currentSceneIndex = 0;
+            renderSceneCards();
+            renderTimelineBlocks();
+            updateTimelineDisplay();
+        }
+
+        function renderSceneCards() {
+            const container = document.getElementById('scenesContainer');
+            container.innerHTML = '';
+
+            appState.scenes.forEach((scene, index) => {
+                const isActive = index === appState.currentSceneIndex;
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-xl p-4 space-y-3 cursor-pointer ${isActive ? 'border-emerald-500 bg-emerald-950/20 gold-border-glow' : ''}`;
+                card.onclick = () => selectScene(index);
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-800/50">
+                            Scene ${index + 1}
+                        </span>
+                        <div class="flex items-center space-x-1" onclick="event.stopPropagation()">
+                            <button onclick="openPromptModal(${index})" title="Image Prompt" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">
+                                🖼 Prompt
+                            </button>
+                            <button onclick="openEditSceneModal(${index})" title="Edit Scene" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">
+                                ✏️ Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-100 truncate">${scene.title}</h4>
+                        <p class="text-xs text-slate-300 line-clamp-2 mt-1">${scene.mainText}</p>
+                    </div>
+
+                    ${scene.reference ? `<div class="text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-1 rounded border border-emerald-900/50 flex items-center space-x-1">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span class="truncate">${scene.reference}</span>
+                    </div>` : ''}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function renderTimelineBlocks() {
+            const container = document.getElementById('timelineSceneBlocks');
+            container.innerHTML = '';
+
+            appState.scenes.forEach((scene, index) => {
+                const isActive = index === appState.currentSceneIndex;
+                const block = document.createElement('div');
+                block.className = `h-1.5 flex-1 rounded-full cursor-pointer transition-all ${isActive ? 'bg-emerald-400' : 'bg-slate-800 hover:bg-slate-700'}`;
+                block.title = `Scene ${index + 1}: ${scene.title}`;
+                block.onclick = () => selectScene(index);
+                container.appendChild(block);
+            });
+        }
+
+        function selectScene(index) {
+            appState.currentSceneIndex = index;
+            renderSceneCards();
+            renderTimelineBlocks();
+            updateTimelineDisplay();
+
+            if (appState.isPlaying) {
+                speakVoiceover(appState.scenes[index].voiceover);
+            }
+        }
+
+        function updateTimelineDisplay() {
+            if (appState.scenes.length === 0) return;
+            const currentScene = appState.scenes[appState.currentSceneIndex];
+            document.getElementById('sceneTitleDisplay').innerText = `Scene ${appState.currentSceneIndex + 1}: ${currentScene.title}`;
+
+            const totalDuration = appState.scenes.reduce((acc, s) => acc + (s.duration || 7), 0);
+            document.getElementById('totalTimeDisplay').innerText = formatTime(totalDuration);
+        }
+
+        /* PLAYBACK CONTROLS */
+        function togglePlayPause() {
+            appState.isPlaying = !appState.isPlaying;
+            const btn = document.getElementById('playPauseBtn');
+
+            if (appState.isPlaying) {
+                btn.innerHTML = '<i class="fa-solid fa-pause text-sm"></i>';
+                startAudioSynth();
+                speakVoiceover(appState.scenes[appState.currentSceneIndex].voiceover);
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-play text-sm ml-0.5"></i>';
+                stopAudioSynth();
+                speechSynth.cancel();
+            }
+        }
+
+        function prevScene() {
+            if (appState.currentSceneIndex > 0) {
+                selectScene(appState.currentSceneIndex - 1);
+            }
+        }
+
+        function nextScene() {
+            if (appState.currentSceneIndex < appState.scenes.length - 1) {
+                selectScene(appState.currentSceneIndex + 1);
+            } else {
+                appState.isPlaying = false;
+                document.getElementById('playPauseBtn').innerHTML = '<i class="fa-solid fa-play text-sm ml-0.5"></i>';
+                stopAudioSynth();
+            }
+        }
+
+        function restartVideo() {
+            selectScene(0);
+        }
+
+        function updatePlaybackProgress() {
+            // Automatic timing progress
+            const currentScene = appState.scenes[appState.currentSceneIndex];
+            const duration = currentScene.duration || 7;
+            
+            // Progress estimation
+            const progress = (appState.currentSceneIndex / appState.scenes.length) * 100;
+            document.getElementById('timelineProgress').style.width = `${progress}%`;
+        }
+
+        function initAudioSynth() {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioCtx();
+            musicGainNode = audioCtx.createGain();
+            musicGainNode.gain.value = appState.musicVolume;
+            musicGainNode.connect(audioCtx.destination);
+        }
+
+        function startAudioSynth() {
+            if (!audioCtx) initAudioSynth();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (appState.bgMusicMood === 'none') return;
+
+            stopAudioSynth();
+
+            // Create relaxing drone/synth pad
+            const freqs = [110, 164.81, 220, 293.66]; // A Minor / Peace harmony
+            freqs.forEach(f => {
+                const osc = audioCtx.createOscillator();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+
+                const gain = audioCtx.createGain();
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+
+                osc.connect(gain);
+                gain.connect(musicGainNode);
+                osc.start();
+                musicOscillators.push(osc);
+            });
+        }
+
+        function stopAudioSynth() {
+            musicOscillators.forEach(osc => {
+                try { osc.stop(); } catch(e){}
+            });
+            musicOscillators = [];
+        }
+
+        function updateAudioVolumes() {
+            appState.voiceVolume = parseFloat(document.getElementById('voiceVol').value);
+            appState.musicVolume = parseFloat(document.getElementById('musicVol').value);
+            if (musicGainNode) {
+                musicGainNode.gain.setValueAtTime(appState.musicVolume, audioCtx.currentTime);
+            }
+        }
+
+        function speakVoiceover(text) {
+            speechSynth.cancel();
+            if (!text) return;
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = parseFloat(document.getElementById('voiceSpeed').value) || 0.95;
+            utterance.volume = appState.voiceVolume;
+
+            utterance.onend = () => {
+                if (appState.isPlaying) {
+                    setTimeout(() => nextScene(), 500);
+                }
+            };
+
+            speechSynth.speak(utterance);
+        }
+
+        function openExportModal() {
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+        }
+
+        function startWebMExport() {
+            const canvas = document.getElementById('videoCanvas');
+            const stream = canvas.captureStream(30);
+
+            appState.recordedChunks = [];
+            appState.mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+            appState.mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) appState.recordedChunks.push(e.data);
+            };
+
+            appState.mediaRecorder.onstop = () => {
+                const blob = new Blob(appState.recordedChunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Islamic_AI_Video_${Date.now()}.webm`;
+                a.click();
+                showToast("WebM Video exported successfully!", "success");
+            };
+
+            appState.mediaRecorder.start();
+            showToast("Recording canvas frames...", "info");
+            closeExportModal();
+
+            // Play through scenes
+            restartVideo();
+            appState.isPlaying = true;
+            speakVoiceover(appState.scenes[0].voiceover);
+
+            const totalDuration = appState.scenes.reduce((acc, s) => acc + (s.duration || 7), 0) * 1000;
+            setTimeout(() => {
+                if (appState.mediaRecorder) appState.mediaRecorder.stop();
+                appState.isPlaying = false;
+            }, totalDuration);
+        }
+
+        function downloadScriptJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.scenes, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "Islamic_Video_Script.json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Script JSON downloaded!", "success");
+        }
+
+        function openPromptModal(index) {
+            const scene = appState.scenes[index];
+            const promptText = `${scene.imageDesc} --ar ${appState.aspectRatio.replace(':', '-')} --style raw --v 6.0`;
+            document.getElementById('promptModalText').innerText = promptText;
+            document.getElementById('promptModal').classList.remove('hidden');
+        }
+
+        function closePromptModal() {
+            document.getElementById('promptModal').classList.add('hidden');
+        }
+
+        function copyPromptFromModal() {
+            const text = document.getElementById('promptModalText').innerText;
+            navigator.clipboard.writeText(text);
+            showToast("Prompt copied to clipboard!", "success");
+            closePromptModal();
+        }
+
+        function openEditSceneModal(index) {
+            const scene = appState.scenes[index];
+            document.getElementById('editSceneIndex').value = index;
+            document.getElementById('editSceneTitle').value = scene.title;
+            document.getElementById('editMainText').value = scene.mainText;
+            document.getElementById('editVoiceover').value = scene.voiceover;
+            document.getElementById('editReference').value = scene.reference || '';
+            document.getElementById('editSceneModal').classList.remove('hidden');
+        }
+
+        function closeEditSceneModal() {
+            document.getElementById('editSceneModal').classList.add('hidden');
+        }
+
+        function saveSceneEdit() {
+            const index = parseInt(document.getElementById('editSceneIndex').value);
+            appState.scenes[index].title = document.getElementById('editSceneTitle').value;
+            appState.scenes[index].mainText = document.getElementById('editMainText').value;
+            appState.scenes[index].voiceover = document.getElementById('editVoiceover').value;
+            appState.scenes[index].reference = document.getElementById('editReference').value;
+
+            onScenesUpdated();
+            closeEditSceneModal();
+            showToast("Scene updated successfully!", "success");
+        }
+
+        function toggleApiKeyModal() {
+            const modal = document.getElementById('apiKeyModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('geminiApiKeyInput').value.trim();
+            localStorage.setItem('gemini_api_key', key);
+            checkApiKey();
+            toggleApiKeyModal();
+            showToast("API key saved locally!", "success");
+        }
+
+        function clearApiKey() {
+            localStorage.removeItem('gemini_api_key');
+            document.getElementById('geminiApiKeyInput').value = '';
+            checkApiKey();
+            toggleApiKeyModal();
+            showToast("API key cleared.", "info");
+        }
+
+        function checkApiKey() {
+            const key = localStorage.getItem('gemini_api_key');
+            const statusText = document.getElementById('apiStatusText');
+            if (key) {
+                statusText.innerText = "Gemini Key Saved";
+                statusText.className = "text-emerald-400 font-semibold";
+            } else {
+                statusText.innerText = "Gemini API Config";
+                statusText.className = "hidden sm:inline";
+            }
+        }
+
+        function showCanvasLoader(show) {
+            const loader = document.getElementById('canvasLoader');
+            if (show) loader.classList.remove('hidden');
+            else loader.classList.add('hidden');
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `px-4 py-2.5 rounded-xl text-xs font-semibold text-white shadow-xl transition-all duration-300 transform translate-y-2 flex items-center space-x-2 ${type === 'success' ? 'bg-emerald-600' : type === 'warning' ? 'bg-amber-600' : 'bg-slate-800'}`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function toggleFullscreen() {
+            const container = document.getElementById('canvasContainer');
+            if (!document.fullscreenElement) {
+                container.requestFullscreen().catch(err => console.error(err));
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
